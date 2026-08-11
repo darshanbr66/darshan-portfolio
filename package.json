@@ -6,6 +6,7 @@
   "workspaces": ["client", "server"],
   "scripts": {
     "dev:client": "npm --prefix client run dev",
+    "build:client": "npm --prefix client run build",
     "dev:server": "npm --prefix server run dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
