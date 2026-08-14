@@ -1,33 +1,7 @@
 import ProjectCard from "../../components/common/ProjectCard";
+import { portfolio } from "../../data/portfolio";
 
-const projects = [
-  {
-    title: "Roster Data Management",
-    category: "Professional",
-    technologies: [],
-    description: null,
-  },
-  {
-    title: "Patent Claim Parsing",
-    category: "Professional",
-    technologies: [],
-    description: null,
-  },
-  {
-    title: "US Patent Blog Application",
-    category: "Professional",
-    technologies: [],
-    description: null,
-  },
-  {
-    title: "Daily Routine App",
-    category: "Personal Project",
-    technologies: ["MERN"],
-    description: null,
-    githubUrl: "https://github.com/darshanbr66/daily-routine-app",
-    liveUrl: "https://daily-routine-app-zeta.vercel.app",
-  },
-];
+
 
 function ProjectsSection() {
   return (
@@ -58,7 +32,7 @@ function ProjectsSection() {
 
           {/* Project list */}
           <div className="grid gap-12 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-16">
-            {projects.map((project) => (
+            {portfolio.projects.map((project) => (
               <ProjectCard
                 key={project.title}
                 {...project}
