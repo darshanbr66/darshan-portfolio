@@ -1,9 +1,17 @@
 import ProjectCard from "../../components/common/ProjectCard";
 import { portfolio } from "../../data/portfolio";
+import { useProjects } from "../../features/projects/hooks/useProjects";
 
 
 
 function ProjectsSection() {
+
+  const {
+    data: projects = [],
+    isLoading,
+    isError,
+  } = useProjects();
+
   return (
     <section
       id="work"
@@ -31,13 +39,50 @@ function ProjectsSection() {
           </div>
 
           {/* Project list */}
-          <div className="grid gap-12 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-16">
-            {portfolio.projects.map((project) => (
-              <ProjectCard
-                key={project.title}
-                {...project}
-              />
-            ))}
+          <div>
+            {isLoading && (
+              <div className="grid gap-12 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-16">
+                <div className="h-40 animate-pulse border-t border-[var(--color-border)]" />
+                <div className="h-40 animate-pulse border-t border-[var(--color-border)]" />
+              </div>
+            )}
+
+            {isError && (
+              <div className="border-t border-[var(--color-border)] pt-5">
+                <p className="text-sm text-[var(--color-muted)]">
+                  Unable to load projects right now.
+                </p>
+              </div>
+            )}
+
+            {!isLoading && !isError && projects.length === 0 && (
+              <div className="border-t border-[var(--color-border)] pt-5">
+                <p className="text-sm text-[var(--color-muted)]">
+                  No projects available.
+                </p>
+              </div>
+            )}
+
+            {!isLoading && !isError && projects.length > 0 && (
+              <div className="grid gap-12 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-16">
+                {projects.map((project) => (
+                  <ProjectCard
+                    key={project._id}
+                    title={project.title}
+                    category={project.category}
+                    technologies={project.technologies}
+                    description={project.shortDescription}
+                    githubUrl={
+                      project.links?.find((link) => link.label === "GitHub")?.url
+                    }
+                    liveUrl={
+                      project.links?.find((link) => link.label === "Live")?.url
+                    }
+                    href={`/projects/${project.slug}`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

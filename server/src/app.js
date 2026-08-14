@@ -1,6 +1,7 @@
 import "dotenv/config";
 import cors from "cors";
 import express from "express";
+import projectRoutes from "./routes/project.routes.js";
 
 const app = express();
 
@@ -21,5 +22,8 @@ app.get("/api/v1/health", (req, res) => {
     message: "Portfolio API is running",
   });
 });
+
+app.use("/api/v1/projects", projectRoutes);
+
 
 export default app;

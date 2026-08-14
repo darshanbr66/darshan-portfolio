@@ -7,7 +7,7 @@ function ProjectCard({
   description,
   githubUrl,
   liveUrl,
-  href = "#",
+  href,
 }) {
   return (
     <article className="group flex h-full flex-col border-t border-[var(--color-border)] pt-5">
@@ -49,9 +49,9 @@ function ProjectCard({
         </div>
       )}
 
-      {(githubUrl || liveUrl || href !== "#") && (
+      {(githubUrl || liveUrl || href) && (
         <div className="mt-auto flex flex-wrap gap-5 pt-8 text-sm">
-          {href !== "#" && (
+          {href && (
             <a
               href={href}
               className="border-b border-[var(--color-text)] pb-0.5 text-[var(--color-text)] transition-opacity duration-200 hover:opacity-60"
