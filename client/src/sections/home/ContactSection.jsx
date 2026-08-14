@@ -1,121 +1,168 @@
-import { portfolio } from "../../data/portfolio";
+import { useState } from "react";
+import { Mail } from "lucide-react";
+import { sendContactMessage } from "../../features/contact/contact.service";
 
 function ContactSection() {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+
+  const [status, setStatus] = useState({
+    type: "",
+    message: "",
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  function handleChange(event) {
+    const { name, value } = event.target;
+
+    setForm((current) => ({
+      ...current,
+      [name]: value,
+    }));
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+
+    setStatus({
+      type: "",
+      message: "",
+    });
+
+    setIsSubmitting(true);
+
+    try {
+      await sendContactMessage(form);
+
+      setForm({
+        name: "",
+        email: "",
+        message: "",
+      });
+
+      setStatus({
+        type: "success",
+        message: "Your message has been received.",
+      });
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message:
+          error.response?.data?.message ||
+          "Unable to send your message. Please try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return (
     <section
       id="contact"
       className="border-t border-[var(--color-border)]"
-      aria-labelledby="contact-heading"
     >
-      <div className="mx-auto max-w-7xl px-6 py-24 sm:px-8 sm:py-28 lg:px-10 lg:py-36">
-        <div className="grid gap-14 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)] lg:gap-20">
-          {/* Introduction */}
-          <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--color-muted)]">
-              Contact
-            </p>
+      <div className="mx-auto grid max-w-6xl gap-16 px-6 py-24 sm:px-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-24 lg:px-12 lg:py-32">
+        <div>
+          <p className="text-sm font-medium uppercase tracking-[0.18em] text-[var(--color-accent)]">
+            Contact
+          </p>
 
-            <h2
-              id="contact-heading"
-              className="mt-5 max-w-lg text-4xl font-medium tracking-[-0.04em] text-[var(--color-text)] sm:text-5xl"
-            >
-              Get in touch.
-            </h2>
+          <h2 className="mt-5 text-4xl font-semibold tracking-[-0.04em] text-[var(--color-text)] sm:text-5xl">
+            Get in touch
+          </h2>
 
-            <p className="mt-6 max-w-md text-base leading-7 text-[var(--color-muted)]">
-              Contact information and a way to get in touch.
-            </p>
+          <p className="mt-6 max-w-md text-base leading-7 text-[var(--color-muted)]">
+            For professional opportunities, project discussions, or other
+            enquiries.
+          </p>
 
-            <div className="mt-10 space-y-5">
-              {portfolio.socialLinks.map((link) => (
-                <div key={link.id}>
-                  <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--color-muted)]">
-                    {link.label}
-                  </p>
-
-                  <a
-                    href={link.href}
-                    target={link.id === "email" ? undefined : "_blank"}
-                    rel={link.id === "email" ? undefined : "noreferrer"}
-                    className="mt-2 inline-block break-all text-base text-[var(--color-text)] underline decoration-[var(--color-border-strong)] underline-offset-4 transition-opacity duration-200 hover:opacity-60"
-                  >
-                    {link.value}
-                  </a>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Contact form */}
-          <div>
-            <form
-              className="border-t border-[var(--color-border)]"
-              onSubmit={(event) => event.preventDefault()}
-            >
-              <div className="border-b border-[var(--color-border)] py-6">
-                <label
-                  htmlFor="contact-name"
-                  className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--color-muted)]"
-                >
-                  Name
-                </label>
-
-                <input
-                  id="contact-name"
-                  name="name"
-                  type="text"
-                  autoComplete="name"
-                  className="mt-4 block w-full border-0 bg-transparent p-0 text-base text-[var(--color-text)] outline-none placeholder:text-[var(--color-muted)]"
-                  placeholder="Your name"
-                />
-              </div>
-
-              <div className="border-b border-[var(--color-border)] py-6">
-                <label
-                  htmlFor="contact-email"
-                  className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--color-muted)]"
-                >
-                  Email
-                </label>
-
-                <input
-                  id="contact-email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  className="mt-4 block w-full border-0 bg-transparent p-0 text-base text-[var(--color-text)] outline-none placeholder:text-[var(--color-muted)]"
-                  placeholder="you@example.com"
-                />
-              </div>
-
-              <div className="border-b border-[var(--color-border)] py-6">
-                <label
-                  htmlFor="contact-message"
-                  className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--color-muted)]"
-                >
-                  Message
-                </label>
-
-                <textarea
-                  id="contact-message"
-                  name="message"
-                  rows="6"
-                  className="mt-4 block w-full resize-y border-0 bg-transparent p-0 text-base text-[var(--color-text)] outline-none placeholder:text-[var(--color-muted)]"
-                  placeholder="Your message"
-                />
-              </div>
-
-              <div className="pt-8">
-                <button
-                  type="submit"
-                  className="min-h-12 w-full bg-[var(--color-text)] px-6 text-sm font-medium text-[var(--color-surface)] transition-opacity duration-200 hover:opacity-80 sm:w-auto"
-                >
-                  Send message
-                </button>
-              </div>
-            </form>
-          </div>
+          <a
+            href="mailto:darshanbr36@gmail.com"
+            className="mt-8 inline-flex min-h-11 items-center gap-3 text-sm font-medium text-[var(--color-text)] transition-opacity hover:opacity-60"
+          >
+            <Mail size={17} />
+            darshanbr36@gmail.com
+          </a>
         </div>
+
+        <form
+          onSubmit={handleSubmit}
+          className="border-t border-[var(--color-border)] pt-8"
+        >
+          <div className="grid gap-6">
+            <label className="grid gap-2">
+              <span className="text-sm font-medium text-[var(--color-text)]">
+                Name
+              </span>
+
+              <input
+                type="text"
+                name="name"
+                value={form.name}
+                onChange={handleChange}
+                required
+                maxLength={120}
+                className="min-h-12 border border-[var(--color-border-strong)] bg-transparent px-4 text-base outline-none transition-colors focus:border-[var(--color-text)]"
+              />
+            </label>
+
+            <label className="grid gap-2">
+              <span className="text-sm font-medium text-[var(--color-text)]">
+                Email
+              </span>
+
+              <input
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                required
+                maxLength={200}
+                className="min-h-12 border border-[var(--color-border-strong)] bg-transparent px-4 text-base outline-none transition-colors focus:border-[var(--color-text)]"
+              />
+            </label>
+
+            <label className="grid gap-2">
+              <span className="text-sm font-medium text-[var(--color-text)]">
+                Message
+              </span>
+
+              <textarea
+                name="message"
+                value={form.message}
+                onChange={handleChange}
+                required
+                maxLength={5000}
+                rows={7}
+                className="resize-y border border-[var(--color-border-strong)] bg-transparent px-4 py-3 text-base outline-none transition-colors focus:border-[var(--color-text)]"
+              />
+            </label>
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="min-h-12 w-full bg-[var(--color-text)] px-6 text-sm font-medium text-white transition-opacity hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-50 sm:w-fit"
+            >
+              {isSubmitting ? "Sending..." : "Send message"}
+            </button>
+
+            {status.message && (
+              <p
+                className={`text-sm ${
+                  status.type === "error"
+                    ? "text-red-700"
+                    : "text-[var(--color-muted)]"
+                }`}
+              >
+                {status.message}
+              </p>
+            )}
+          </div>
+        </form>
       </div>
     </section>
   );
