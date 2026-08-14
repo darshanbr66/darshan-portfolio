@@ -8,7 +8,8 @@
     "dev:client": "npm --prefix client run dev",
     "build:client": "npm --prefix client run build",
     "dev:server": "npm --prefix server run dev",
-    "seed:projects": "npm --prefix server run seed:projects"
+    "seed:projects": "npm --prefix server run seed:projects",
+    "seed:experience": "npm --prefix server run seed:experience"
   },
   "keywords": [],
   "author": "",

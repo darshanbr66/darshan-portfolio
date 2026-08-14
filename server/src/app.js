@@ -2,6 +2,7 @@ import "dotenv/config";
 import cors from "cors";
 import express from "express";
 import projectRoutes from "./routes/project.routes.js";
+import experienceRoutes from "./routes/experience.routes.js";
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.get("/api/v1/health", (req, res) => {
 });
 
 app.use("/api/v1/projects", projectRoutes);
+app.use("/api/v1/experience", experienceRoutes);
 
 
 export default app;
