@@ -1,125 +1,269 @@
-import { ArrowUpRight, Mail } from "lucide-react";
-
-const profileLinks = [
-  {
-    label: "GitHub",
-    href: "https://github.com/darshanbr66",
-  },
-  {
-    label: "LinkedIn",
-    href: "https://www.linkedin.com/in/darshan-b-r-94ab92269/",
-  },
-  {
-    label: "Email",
-    href: "mailto:darshanbr36@gmail.com",
-  },
-];
+import { ArrowDown, ArrowUpRight } from "lucide-react";
+import { useProfile } from "../../features/profile/hooks/useProfile";
+import Skeleton from "../../components/ui/Skeleton";
 
 function HeroSection() {
+  const {
+    data: profile,
+    isLoading,
+    isError,
+  } = useProfile();
+
+  if (isLoading) {
+    return (
+      <section className="flex min-h-[calc(100vh-72px)] items-center">
+        <div className="mx-auto w-full max-w-[1440px] px-6 sm:px-8 lg:px-12">
+          <div className="max-w-5xl space-y-6">
+            <Skeleton className="h-4 w-32 rounded-full" />
+            <Skeleton className="h-20 w-3/4 rounded-xl" />
+            <Skeleton className="h-8 w-2/3 rounded-lg" />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (isError || !profile) {
+    return (
+      <section className="flex min-h-[calc(100vh-72px)] items-center">
+        <div className="mx-auto w-full max-w-[1440px] px-6 sm:px-8 lg:px-12">
+          <p className="text-sm text-[var(--color-ink-muted)]">
+            Unable to load profile.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  const githubUrl = profile.socialLinks?.find(
+    (link) => link.id === "github",
+  )?.url;
+
+  const linkedinUrl = profile.socialLinks?.find(
+    (link) => link.id === "linkedin",
+  )?.url;
+
   return (
     <section
-      id="home"
-      aria-labelledby="hero-title"
-      className="border-b border-neutral-200"
+      id="hero"
+      className="relative overflow-hidden"
     >
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-6 py-20 sm:px-8 sm:py-24 md:gap-16 md:px-10 md:py-28 lg:grid-cols-[minmax(0,1fr)_280px] lg:px-12 lg:py-32 xl:grid-cols-[minmax(0,1fr)_320px]"
-      >
-        <div className="max-w-4xl">
-          <p className="mb-8 text-xs font-medium uppercase tracking-[0.24em] text-neutral-500 sm:mb-10">
-            Software Engineer
-          </p>
+      <div className="mx-auto flex min-h-[calc(100vh-100px)] w-full max-w-[1440px] items-center px-6 py-24 sm:px-8 sm:py-28 lg:px-12 lg:py-32">
+        <div className="w-full">
+          <div className="grid items-end gap-16 lg:grid-cols-[minmax(0,1fr)_280px] lg:gap-20">
+            {/* Main introduction */}
 
-          <h1
-            id="hero-title"
-            className="max-w-4xl text-[clamp(3.25rem,9vw,7.5rem)] font-medium leading-[0.92] tracking-[-0.055em] text-neutral-950"
-          >
-            Darshan B R
-            <span className="mt-3 block text-neutral-500 sm:mt-4">
-              Full-Stack
-              <br className="hidden sm:block" /> MERN Developer
-            </span>
-          </h1>
+            <div className="max-w-5xl">
+              <div className="flex items-center gap-3">
+                <span className="h-px w-10 bg-[var(--color-accent)]" />
 
-          <p className="mt-8 max-w-xl text-base leading-7 text-neutral-600 sm:mt-10 sm:text-lg sm:leading-8">
-            Software Engineer working with MERN and Python.
-          </p>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)] sm:text-sm">
+                  {profile.role}
+                </p>
+              </div>
 
-          <div className="mt-10 flex flex-col gap-3 sm:mt-12 sm:flex-row">
-            <a
-              href="#projects"
-              className="inline-flex min-h-12 items-center justify-center gap-2 border border-neutral-950 bg-neutral-950 px-6 py-3 text-sm font-medium text-white transition-colors duration-200 hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2"
-            >
-              View Projects
-              <ArrowUpRight size={16} strokeWidth={1.8} />
-            </a>
+              <h1 className="mt-7 max-w-5xl text-[clamp(3.5rem,9vw,8.5rem)] font-semibold leading-[0.88] tracking-[-0.065em] text-[var(--color-ink)]">
+                {profile.name}
+              </h1>
 
-            <button
-              type="button"
-              disabled
-              title="Resume link will be added when the resume is provided"
-              aria-label="Resume — link not available yet"
-              className="inline-flex min-h-12 cursor-not-allowed items-center justify-center border border-neutral-300 px-6 py-3 text-sm font-medium text-neutral-400"
-            >
-              Resume
-            </button>
-          </div>
+              {profile.title && (
+                <p className="mt-8 max-w-3xl text-2xl font-medium leading-tight tracking-[-0.03em] text-[var(--color-ink)] sm:text-3xl lg:text-4xl">
+                  {profile.title}
+                </p>
+              )}
 
-          <nav
-            aria-label="Professional profiles"
-            className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-neutral-200 pt-6 sm:mt-12 sm:pt-7"
-          >
-            {profileLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                target={link.href.startsWith("http") ? "_blank" : undefined}
-                rel={link.href.startsWith("http") ? "noreferrer" : undefined}
-                className="group inline-flex min-h-11 items-center gap-1 text-sm font-medium text-neutral-700 transition-colors duration-200 hover:text-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2"
-              >
-                {link.label}
+              {profile.headline && (
+                <p className="mt-6 max-w-2xl text-base leading-7 text-[var(--color-ink-muted)] sm:text-lg sm:leading-8">
+                  {profile.headline}
+                </p>
+              )}
 
-                {link.label === "Email" ? (
-                  <Mail
-                    size={14}
-                    strokeWidth={1.8}
-                    className="transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                  />
-                ) : (
-                  <ArrowUpRight
-                    size={14}
-                    strokeWidth={1.8}
-                    className="transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                  />
+              {/* Primary actions */}
+
+              <div className="mt-10 flex flex-wrap items-center gap-3">
+                <a
+                  href="/#projects"
+                  className="
+                    inline-flex
+                    items-center
+                    gap-2
+                    rounded-full
+                    bg-[var(--color-ink)]
+                    px-5
+                    py-3
+                    text-sm
+                    font-semibold
+                    text-white
+                    transition-all
+                    duration-200
+                    hover:-translate-y-0.5
+                    hover:bg-[var(--color-accent)]
+                  "
+                >
+                  View my work
+                  <ArrowUpRight size={16} />
+                </a>
+
+                <a
+                  href="/#contact"
+                  className="
+                    inline-flex
+                    items-center
+                    rounded-full
+                    border
+                    border-[var(--color-border-strong)]
+                    px-5
+                    py-3
+                    text-sm
+                    font-semibold
+                    text-[var(--color-ink)]
+                    transition-all
+                    duration-200
+                    hover:-translate-y-0.5
+                    hover:border-[var(--color-ink)]
+                    hover:bg-[var(--color-surface-soft)]
+                  "
+                >
+                  Let's talk
+                </a>
+              </div>
+
+              {/* Social links */}
+
+              <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
+                {githubUrl && (
+                  <a
+                    href={githubUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="
+                      border-b
+                      border-transparent
+                      pb-1
+                      text-sm
+                      font-medium
+                      text-[var(--color-ink-muted)]
+                      transition-colors
+                      hover:border-[var(--color-ink)]
+                      hover:text-[var(--color-ink)]
+                    "
+                  >
+                    GitHub
+                  </a>
                 )}
-              </a>
-            ))}
-          </nav>
+
+                {linkedinUrl && (
+                  <a
+                    href={linkedinUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="
+                      border-b
+                      border-transparent
+                      pb-1
+                      text-sm
+                      font-medium
+                      text-[var(--color-ink-muted)]
+                      transition-colors
+                      hover:border-[var(--color-ink)]
+                      hover:text-[var(--color-ink)]
+                    "
+                  >
+                    LinkedIn
+                  </a>
+                )}
+
+                {profile.socialLinks
+                  ?.filter(
+                    (link) =>
+                      link.id !== "github" &&
+                      link.id !== "linkedin",
+                  )
+                  .map((link) => (
+                    <a
+                      key={link.id}
+                      href={link.url}
+                      target={
+                        link.url.startsWith("mailto:")
+                          ? undefined
+                          : "_blank"
+                      }
+                      rel={
+                        link.url.startsWith("mailto:")
+                          ? undefined
+                          : "noreferrer"
+                      }
+                      className="
+                        border-b
+                        border-transparent
+                        pb-1
+                        text-sm
+                        font-medium
+                        text-[var(--color-ink-muted)]
+                        transition-colors
+                        hover:border-[var(--color-ink)]
+                        hover:text-[var(--color-ink)]
+                      "
+                    >
+                      {link.label}
+                    </a>
+                  ))}
+              </div>
+            </div>
+
+            {/* Supporting information */}
+
+            <div className="hidden lg:block">
+              <div className="border-l border-[var(--color-border)] pl-8">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-ink-muted)]">
+                  Available for
+                </p>
+
+                <p className="mt-4 text-sm leading-6 text-[var(--color-ink-soft)]">
+                  Full-stack development
+                  <br />
+                  Web applications
+                  <br />
+                  Product-focused engineering
+                </p>
+
+                <a
+                  href="/#projects"
+                  className="
+                    mt-10
+                    inline-flex
+                    items-center
+                    gap-2
+                    text-xs
+                    font-semibold
+                    uppercase
+                    tracking-[0.14em]
+                    text-[var(--color-ink)]
+                    transition-colors
+                    hover:text-[var(--color-accent)]
+                  "
+                >
+                  Explore work
+                  <ArrowDown size={14} />
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom visual divider */}
+
+          <div className="mt-20 border-t border-[var(--color-border)] pt-5 sm:mt-24">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-muted)]">
+                Portfolio
+              </span>
+
+              <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-muted)]">
+                Scroll to explore
+              </span>
+            </div>
+          </div>
         </div>
-
-        <aside className="flex flex-col justify-end border-t border-neutral-200 pt-6 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0 xl:pl-10">
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">
-            Current role
-          </p>
-
-          <div className="mt-4">
-            <p className="text-base font-medium text-neutral-950">
-              Software Engineer
-            </p>
-            <p className="mt-1 text-sm leading-6 text-neutral-500">
-              Sigvitas Private Limited
-            </p>
-          </div>
-
-          <div className="mt-8 border-t border-neutral-200 pt-5">
-            <p className="text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">
-              Since
-            </p>
-
-            <p className="mt-3 text-sm text-neutral-700">
-              November 2024
-            </p>
-          </div>
-        </aside>
       </div>
     </section>
   );

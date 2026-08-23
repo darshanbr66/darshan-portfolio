@@ -5,6 +5,7 @@ import projectRoutes from "./routes/project.routes.js";
 import experienceRoutes from "./routes/experience.routes.js";
 import skillRoutes from "./routes/skill.routes.js";
 import contactRoutes from "./routes/contact.routes.js";
+import profileRoutes from "./routes/profile.routes.js";
 
 const app = express();
 
@@ -30,6 +31,6 @@ app.use("/api/v1/projects", projectRoutes);
 app.use("/api/v1/experience", experienceRoutes);
 app.use("/api/v1/skills", skillRoutes);
 app.use("/api/v1/contact", contactRoutes);
-
+app.use("/api/v1/profile", profileRoutes);
 
 export default app;

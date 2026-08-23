@@ -1,11 +1,8 @@
 import ProjectCard from "../../components/common/ProjectCard";
-import { portfolio } from "../../data/portfolio";
 import { useProjects } from "../../features/projects/hooks/useProjects";
-
-
+import Skeleton from "../../components/ui/Skeleton";
 
 function ProjectsSection() {
-
   const {
     data: projects = [],
     isLoading,
@@ -14,7 +11,7 @@ function ProjectsSection() {
 
   return (
     <section
-      id="work"
+      id="projects"
       className="border-t border-[var(--color-border)]"
       aria-labelledby="projects-heading"
     >
@@ -34,7 +31,8 @@ function ProjectsSection() {
             </h2>
 
             <p className="mt-6 max-w-md text-base leading-7 text-[var(--color-muted)]">
-              A selection of professional and personal projects.
+              A selection of professional and personal projects built with
+              modern technologies.
             </p>
           </div>
 
@@ -42,8 +40,40 @@ function ProjectsSection() {
           <div>
             {isLoading && (
               <div className="grid gap-12 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-16">
-                <div className="h-40 animate-pulse border-t border-[var(--color-border)]" />
-                <div className="h-40 animate-pulse border-t border-[var(--color-border)]" />
+                {[1, 2, 3, 4].map((item) => (
+                  <div
+                    key={item}
+                    className="border-t border-[var(--color-border)] pt-5"
+                  >
+                    <Skeleton className="h-3 w-20" variant="text" />
+
+                    <Skeleton
+                      className="mt-5 h-8 w-44"
+                      variant="heading"
+                    />
+
+                    <Skeleton
+                      className="mt-6 h-4 w-full"
+                      variant="text"
+                    />
+
+                    <Skeleton
+                      className="mt-3 h-4 w-10/12"
+                      variant="text"
+                    />
+
+                    <div className="mt-7 flex gap-4">
+                      <Skeleton className="h-3 w-20" variant="text" />
+                      <Skeleton className="h-3 w-24" variant="text" />
+                      <Skeleton className="h-3 w-16" variant="text" />
+                    </div>
+
+                    <Skeleton
+                      className="mt-8 h-4 w-28"
+                      variant="text"
+                    />
+                  </div>
+                ))}
               </div>
             )}
 
@@ -64,20 +94,21 @@ function ProjectsSection() {
             )}
 
             {!isLoading && !isError && projects.length > 0 && (
-              <div className="grid gap-12 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-16">
-                {projects.map((project) => (
+              <div className="grid gap-x-8 gap-y-14 sm:grid-cols-2 sm:gap-y-16">
+                {projects.map((project, index) => (
                   <ProjectCard
                     key={project._id}
+                    index={index + 1}
                     title={project.title}
                     category={project.category}
                     technologies={project.technologies}
                     description={project.shortDescription}
-                    githubUrl={
-                      project.links?.find((link) => link.label === "GitHub")?.url
-                    }
-                    liveUrl={
-                      project.links?.find((link) => link.label === "Live")?.url
-                    }
+                    githubUrl={project.links?.find(
+                      (link) => link.label === "GitHub"
+                    )?.url}
+                    liveUrl={project.links?.find(
+                      (link) => link.label === "Live"
+                    )?.url}
                     href={`/projects/${project.slug}`}
                   />
                 ))}

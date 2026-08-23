@@ -2,6 +2,8 @@ import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 import { useProjectBySlug } from "../../features/projects/hooks/useProjectBySlug";
+import Skeleton from "../../components/ui/Skeleton";
+
 
 function ProjectDetailPage() {
   const { slug } = useParams();
@@ -16,8 +18,38 @@ function ProjectDetailPage() {
     return (
       <main className="min-h-screen px-6 py-24 sm:px-8 lg:px-12">
         <div className="mx-auto max-w-6xl">
-          <div className="h-5 w-24 animate-pulse bg-[var(--color-surface-muted)]" />
-          <div className="mt-12 h-16 w-full max-w-3xl animate-pulse bg-[var(--color-surface-muted)]" />
+          <Skeleton
+            className="h-5 w-24"
+            variant="text"
+          />
+
+          <div className="mt-16 max-w-4xl">
+            <Skeleton
+              className="h-4 w-24"
+              variant="text"
+            />
+
+            <Skeleton
+              className="mt-5 h-16 w-full max-w-3xl sm:h-20"
+              variant="heading"
+            />
+
+            <Skeleton
+              className="mt-7 h-5 w-full max-w-2xl"
+              variant="text"
+            />
+
+            <Skeleton
+              className="mt-3 h-5 w-10/12 max-w-2xl"
+              variant="text"
+            />
+
+            <div className="mt-8 flex gap-5">
+              <Skeleton className="h-4 w-20" variant="text" />
+              <Skeleton className="h-4 w-24" variant="text" />
+              <Skeleton className="h-4 w-16" variant="text" />
+            </div>
+          </div>
         </div>
       </main>
     );

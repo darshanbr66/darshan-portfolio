@@ -4,7 +4,7 @@ import Footer from "../components/layout/Footer";
 
 function AppLayout() {
   return (
-    <div className="min-h-screen bg-canvas text-ink">
+    <div className="min-h-screen overflow-x-hidden bg-[var(--color-canvas)] text-[var(--color-ink)]">
       <Navbar />
 
       <main>

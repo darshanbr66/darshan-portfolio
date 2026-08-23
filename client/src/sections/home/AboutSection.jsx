@@ -1,90 +1,157 @@
+import { ArrowUpRight } from "lucide-react";
+import { useProfile } from "../../features/profile/hooks/useProfile";
+import Skeleton from "../../components/ui/Skeleton";
+
 function AboutSection() {
+  const {
+    data: profile,
+    isLoading,
+    isError,
+  } = useProfile();
+
   return (
     <section
       id="about"
-      aria-labelledby="about-title"
-      className="border-b border-neutral-200"
+      className="border-t border-[var(--color-border)]"
+      aria-labelledby="about-heading"
     >
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-6 py-20 sm:px-8 sm:py-24 md:gap-16 md:px-10 md:py-28 lg:grid-cols-[minmax(0,1fr)_280px] lg:px-12 lg:py-32 xl:grid-cols-[minmax(0,1fr)_320px]">
-        {/* Introduction */}
-        <div className="max-w-3xl">
-          <p className="mb-8 text-xs font-medium uppercase tracking-[0.24em] text-neutral-500 sm:mb-10">
-            About
-          </p>
+      <div className="mx-auto w-full max-w-[1440px] px-6 py-24 sm:px-8 sm:py-28 lg:px-12 lg:py-32">
+        {/* Section heading */}
 
-          <h2
-            id="about-title"
-            className="max-w-3xl text-4xl font-medium tracking-[-0.04em] text-neutral-950 sm:text-5xl md:text-6xl"
-          >
-            Building software across the stack.
-          </h2>
+        <div className="grid gap-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-20">
+          <div>
+            <div className="flex items-center gap-3">
+              <span className="h-px w-10 bg-[var(--color-accent)]" />
 
-          <div className="mt-8 max-w-2xl space-y-5 text-base leading-7 text-neutral-600 sm:mt-10 sm:text-lg sm:leading-8">
-            <p>
-              I am Darshan B R, a Software Engineer and Full-Stack MERN
-              Developer based in Bengaluru, Karnataka.
-            </p>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)] sm:text-sm">
+                About
+              </p>
+            </div>
 
-            <p>
-              I have been working at Sigvitas Private Limited since November
-              2024, with experience working with MERN and Python.
-            </p>
+            <h2
+              id="about-heading"
+              className="mt-6 max-w-md text-4xl font-semibold leading-[0.95] tracking-[-0.05em] text-[var(--color-ink)] sm:text-5xl lg:text-6xl"
+            >
+              A little about me.
+            </h2>
+          </div>
+
+          {/* Content */}
+
+          <div>
+            {isLoading && (
+              <div className="max-w-3xl space-y-4">
+                <Skeleton className="h-6 w-full" variant="text" />
+                <Skeleton className="h-6 w-11/12" variant="text" />
+                <Skeleton className="h-6 w-10/12" variant="text" />
+                <Skeleton className="h-6 w-8/12" variant="text" />
+              </div>
+            )}
+
+            {isError && (
+              <p className="text-sm text-[var(--color-ink-muted)]">
+                Unable to load profile information.
+              </p>
+            )}
+
+            {!isLoading && !isError && profile && (
+              <>
+                {profile.headline && (
+                  <p className="max-w-3xl text-2xl font-medium leading-9 tracking-[-0.025em] text-[var(--color-ink)] sm:text-3xl sm:leading-10">
+                    {profile.headline}
+                  </p>
+                )}
+
+                {profile.about && (
+                  <p className="mt-8 max-w-3xl text-base leading-8 text-[var(--color-ink-muted)] sm:text-lg sm:leading-8">
+                    {profile.about}
+                  </p>
+                )}
+
+                {/* Profile facts */}
+
+                <div className="mt-12 grid max-w-3xl grid-cols-1 border-y border-[var(--color-border)] sm:grid-cols-2">
+                  {profile.role && (
+                    <div className="border-b border-[var(--color-border)] py-6 sm:border-r sm:pr-8">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--color-ink-muted)]">
+                        Role
+                      </p>
+
+                      <p className="mt-3 text-sm font-medium text-[var(--color-ink)]">
+                        {profile.role}
+                      </p>
+                    </div>
+                  )}
+
+                  {profile.title && (
+                    <div className="py-6 sm:pl-8">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--color-ink-muted)]">
+                        Focus
+                      </p>
+
+                      <p className="mt-3 text-sm font-medium text-[var(--color-ink)]">
+                        {profile.title}
+                      </p>
+                    </div>
+                  )}
+
+                  {profile.location && (
+                    <div className="border-t border-[var(--color-border)] py-6 sm:border-r sm:pr-8">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--color-ink-muted)]">
+                        Based in
+                      </p>
+
+                      <p className="mt-3 text-sm font-medium text-[var(--color-ink)]">
+                        {profile.location}
+                      </p>
+                    </div>
+                  )}
+
+                  {profile.email && (
+                    <div className="border-t border-[var(--color-border)] py-6 sm:pl-8">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--color-ink-muted)]">
+                        Email
+                      </p>
+
+                      <a
+                        href={`mailto:${profile.email}`}
+                        className="
+                          mt-3
+                          inline-flex
+                          items-center
+                          gap-1.5
+                          text-sm
+                          font-medium
+                          text-[var(--color-ink)]
+                          transition-colors
+                          hover:text-[var(--color-accent)]
+                        "
+                      >
+                        {profile.email}
+                        <ArrowUpRight size={14} />
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </div>
 
-        {/* Professional context */}
-        <aside className="border-t border-neutral-200 pt-6 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0 xl:pl-10">
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-neutral-500">
-            Professional context
-          </p>
+        {/* Bottom statement */}
 
-          <dl className="mt-6 space-y-6">
-            <div>
-              <dt className="text-xs uppercase tracking-[0.16em] text-neutral-400">
-                Role
-              </dt>
-              <dd className="mt-2 text-sm font-medium text-neutral-950">
-                Software Engineer
-              </dd>
-            </div>
+        <div className="mt-20 border-t border-[var(--color-border)] pt-5 sm:mt-24">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-muted)]">
+              Background
+            </p>
 
-            <div>
-              <dt className="text-xs uppercase tracking-[0.16em] text-neutral-400">
-                Company
-              </dt>
-              <dd className="mt-2 text-sm font-medium text-neutral-950">
-                Sigvitas Private Limited
-              </dd>
-            </div>
-
-            <div>
-              <dt className="text-xs uppercase tracking-[0.16em] text-neutral-400">
-                Location
-              </dt>
-              <dd className="mt-2 text-sm font-medium text-neutral-950">
-                Bengaluru, Karnataka
-              </dd>
-            </div>
-
-            <div>
-              <dt className="text-xs uppercase tracking-[0.16em] text-neutral-400">
-                Working since
-              </dt>
-              <dd className="mt-2 text-sm font-medium text-neutral-950">
-                November 2024
-              </dd>
-            </div>
-
-            <div>
-              <dt className="text-xs uppercase tracking-[0.16em] text-neutral-400">
-                Technologies
-              </dt>
-              <dd className="mt-2 text-sm font-medium text-neutral-950">
-                MERN · Python
-              </dd>
-            </div>
-          </dl>
-        </aside>
+            <p className="max-w-xl text-sm leading-6 text-[var(--color-ink-muted)] sm:text-right">
+              Building practical software with a focus on clean interfaces,
+              reliable systems, and meaningful user experiences.
+            </p>
+          </div>
+        </div>
       </div>
     </section>
   );

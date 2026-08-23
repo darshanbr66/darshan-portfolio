@@ -15,9 +15,12 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
+
   background: var(--color-canvas);
   color: var(--color-ink);
+
   font-family: var(--font-sans);
+
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -35,6 +38,10 @@ a {
   -webkit-tap-highlight-color: transparent;
 }
 
+button {
+  cursor: pointer;
+}
+
 img,
 svg {
   display: block;
@@ -45,19 +52,65 @@ img {
 }
 
 a {
-  color: inherit;
+  /* color: inherit; */
   text-decoration: none;
 }
 
-:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 3px;
-}
+/* --------------------------------------------------
+   Selection
+-------------------------------------------------- */
 
 ::selection {
   background: var(--color-accent-soft);
   color: var(--color-ink);
 }
+
+/* --------------------------------------------------
+   Focus
+-------------------------------------------------- */
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 4px;
+}
+
+/* --------------------------------------------------
+   Scrollbar
+-------------------------------------------------- */
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-canvas);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #b9bcb7;
+  border: 3px solid var(--color-canvas);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8e938e;
+}
+
+/* --------------------------------------------------
+   Global utilities
+-------------------------------------------------- */
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.text-pretty {
+  text-wrap: pretty;
+}
+
+/* --------------------------------------------------
+   Reduced motion
+-------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -71,5 +124,15 @@ a {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* --------------------------------------------------
+   Skeleton
+-------------------------------------------------- */
+
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
   }
 }

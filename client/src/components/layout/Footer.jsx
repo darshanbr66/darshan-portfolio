@@ -1,46 +1,92 @@
-const footerLinks = [
-  {
-    id: "github",
-    label: "GitHub",
-    href: "https://github.com/darshanbr66",
-  },
-  {
-    id: "linkedin",
-    label: "LinkedIn",
-    href: "https://www.linkedin.com/in/darshan-b-r-94ab92269/",
-  },
-  {
-    id: "email",
-    label: "Email",
-    href: "mailto:darshanbr36@gmail.com",
-  },
-];
+import { ArrowUpRight } from "lucide-react";
+import { useProfile } from "../../features/profile/hooks/useProfile";
+import Container from "./Container";
 
 function Footer() {
-  return (
-    <footer className="border-t border-[var(--color-border)]">
-      <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-8 sm:px-8 sm:py-10 lg:flex-row lg:items-center lg:justify-between lg:px-10">
-        <p className="text-sm text-[var(--color-muted)]">
-          © {new Date().getFullYear()} Darshan B R
-        </p>
+  const { data: profile } = useProfile();
 
-        <nav
-          aria-label="Footer navigation"
-          className="flex flex-wrap gap-x-6 gap-y-3"
-        >
-          {footerLinks.map((link) => (
+  const githubUrl = profile?.socialLinks?.find(
+    (link) => link.id === "github",
+  )?.url;
+
+  const linkedinUrl = profile?.socialLinks?.find(
+    (link) => link.id === "linkedin",
+  )?.url;
+
+  const emailUrl = profile?.socialLinks?.find(
+    (link) => link.id === "email",
+  )?.url;
+
+  return (
+    <footer className="bg-[var(--color-ink)] text-white">
+      <Container>
+        <div className="py-16 sm:py-20 lg:py-24">
+          <div className="grid gap-12 lg:grid-cols-[1fr_auto] lg:items-end">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/45">
+                Let's build something
+              </p>
+
+              <h2 className="mt-5 max-w-2xl text-4xl font-semibold tracking-[-0.05em] sm:text-5xl lg:text-6xl">
+                Have an idea?
+                <br />
+                Let's talk.
+              </h2>
+            </div>
+
             <a
-              key={link.id}
-              href={link.href}
-              target={link.id === "email" ? undefined : "_blank"}
-              rel={link.id === "email" ? undefined : "noreferrer"}
-              className="text-sm text-[var(--color-text)] transition-opacity duration-200 hover:opacity-60"
+              href="/#contact"
+              className="inline-flex w-fit items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-[var(--color-ink)] transition-transform duration-200 hover:-translate-y-1"
             >
-              {link.label}
+              Start a conversation
+              <ArrowUpRight size={16} />
             </a>
-          ))}
-        </nav>
-      </div>
+          </div>
+
+          <div className="mt-16 flex flex-col gap-6 border-t border-white/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-white/45">
+              © {new Date().getFullYear()}{" "}
+              {profile?.name || "Darshan B R"}
+            </p>
+
+            <nav
+              aria-label="Footer navigation"
+              className="flex flex-wrap gap-x-6 gap-y-3"
+            >
+              {githubUrl && (
+                <a
+                  href={githubUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-sm text-white/65 transition-colors hover:text-white"
+                >
+                  GitHub
+                </a>
+              )}
+
+              {linkedinUrl && (
+                <a
+                  href={linkedinUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-sm text-white/65 transition-colors hover:text-white"
+                >
+                  LinkedIn
+                </a>
+              )}
+
+              {emailUrl && (
+                <a
+                  href={emailUrl}
+                  className="text-sm text-white/65 transition-colors hover:text-white"
+                >
+                  Email
+                </a>
+              )}
+            </nav>
+          </div>
+        </div>
+      </Container>
     </footer>
   );
 }

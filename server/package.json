@@ -8,7 +8,8 @@
     "start": "node src/server.js",
     "seed:projects": "node src/seed/projects.js",
     "seed:experience": "node src/seed/experience.js",
-    "seed:skills": "node src/seed/skills.js"
+    "seed:skills": "node src/seed/skills.js",
+    "seed:profile": "node src/seed/profile.js"
   },
   "keywords": [],
   "author": "",

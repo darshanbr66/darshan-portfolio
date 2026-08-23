@@ -1,4 +1,7 @@
+import ExperienceCard from "../../components/common/ExperienceCard";
 import { useExperiences } from "../../features/experience/hook/useExperiences";
+import Skeleton from "../../components/ui/Skeleton";
+
 function ExperienceSection() {
   const {
     data: experiences = [],
@@ -10,107 +13,98 @@ function ExperienceSection() {
     <section
       id="experience"
       className="border-t border-[var(--color-border)]"
+      aria-labelledby="experience-heading"
     >
-      <div className="mx-auto grid max-w-6xl gap-16 px-6 py-24 sm:px-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-24 lg:px-12 lg:py-32">
-        <div>
-          <p className="text-sm font-medium uppercase tracking-[0.18em] text-[var(--color-accent)]">
-            Experience
-          </p>
+      <div className="mx-auto max-w-7xl px-6 py-24 sm:px-8 sm:py-28 lg:px-10 lg:py-36">
+        {/* Section header */}
+        <div className="grid gap-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-20">
+          <div>
+            <div className="flex items-center gap-3">
+              <span className="h-px w-10 bg-[var(--color-accent)]" />
 
-          <h2 className="mt-5 max-w-md text-4xl font-semibold tracking-[-0.04em] text-[var(--color-text)] sm:text-5xl">
-            Professional Experience
-          </h2>
+              <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--color-accent)]">
+                Experience
+              </p>
+            </div>
 
-          <p className="mt-6 max-w-md text-base leading-7 text-[var(--color-muted)]">
-            Professional experience and technical context.
-          </p>
+            <h2
+              id="experience-heading"
+              className="
+                mt-6
+                max-w-lg
+                text-4xl
+                font-medium
+                tracking-[-0.04em]
+                text-[var(--color-text)]
+                sm:text-5xl
+              "
+            >
+              Where I've worked.
+            </h2>
+          </div>
+
+          <div className="lg:pt-8">
+            <p className="max-w-2xl text-base leading-7 text-[var(--color-muted)] sm:text-lg sm:leading-8">
+              A look at my professional journey, the products I've worked on,
+              and the technologies I've used to build practical software.
+            </p>
+          </div>
         </div>
 
-        <div>
+        {/* Experience list */}
+        <div className="mt-16 sm:mt-20">
           {isLoading && (
             <div className="border-t border-[var(--color-border)] py-8">
-              <div className="h-6 w-48 animate-pulse bg-[var(--color-surface-muted)]" />
+              <Skeleton className="h-5 w-48" variant="text" />
+              <Skeleton className="mt-5 h-8 w-72" variant="heading" />
+              <Skeleton
+                className="mt-6 h-4 w-full max-w-xl"
+                variant="text"
+              />
+              <Skeleton
+                className="mt-3 h-4 w-11/12 max-w-xl"
+                variant="text"
+              />
+              <Skeleton
+                className="mt-3 h-4 w-9/12 max-w-xl"
+                variant="text"
+              />
             </div>
           )}
 
           {isError && (
-            <p className="border-t border-[var(--color-border)] pt-8 text-sm text-[var(--color-muted)]">
-              Unable to load experience.
-            </p>
+            <div className="border-t border-[var(--color-border)] py-8">
+              <p className="text-sm text-[var(--color-muted)]">
+                Unable to load experience right now.
+              </p>
+            </div>
           )}
 
           {!isLoading && !isError && experiences.length === 0 && (
-            <p className="border-t border-[var(--color-border)] pt-8 text-sm text-[var(--color-muted)]">
-              No experience available.
-            </p>
+            <div className="border-t border-[var(--color-border)] py-8">
+              <p className="text-sm text-[var(--color-muted)]">
+                No experience available.
+              </p>
+            </div>
           )}
 
-          {!isLoading &&
-            !isError &&
-            experiences.map((experience) => (
-              <article
-                key={experience._id}
-                className="border-t border-[var(--color-border)] py-8 last:border-b"
-              >
-                <div className="grid gap-6 sm:grid-cols-[0.8fr_1.2fr] sm:gap-10">
-                  <div>
-                    <p className="text-sm text-[var(--color-muted)]">
-                      {experience.startDate} — {experience.endDate}
-                    </p>
-
-                    {experience.location && (
-                      <p className="mt-2 text-sm text-[var(--color-muted)]">
-                        {experience.location}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-[0.18em] text-[var(--color-accent)]">
-                      {experience.role}
-                    </p>
-
-                    <h3 className="mt-4 text-2xl font-semibold tracking-[-0.03em] text-[var(--color-text)] sm:text-3xl">
-                      {experience.company}
-                    </h3>
-
-                    {experience.technologies?.length > 0 && (
-                      <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2">
-                        {experience.technologies.map((technology) => (
-                          <span
-                            key={technology}
-                            className="text-sm text-[var(--color-muted)]"
-                          >
-                            {technology}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    {experience.description && (
-                      <p className="mt-6 max-w-xl text-base leading-7 text-[var(--color-muted)]">
-                        {experience.description}
-                      </p>
-                    )}
-
-                    {experience.responsibilities?.length > 0 && (
-                      <ul className="mt-6 space-y-3">
-                        {experience.responsibilities.map(
-                          (responsibility) => (
-                            <li
-                              key={responsibility}
-                              className="text-sm leading-6 text-[var(--color-muted)]"
-                            >
-                              {responsibility}
-                            </li>
-                          ),
-                        )}
-                      </ul>
-                    )}
-                  </div>
-                </div>
-              </article>
-            ))}
+          {!isLoading && !isError && experiences.length > 0 && (
+            <div>
+              {experiences.map((experience) => (
+                <ExperienceCard
+                  key={experience._id}
+                  company={experience.company}
+                  role={experience.role}
+                  startDate={experience.startDate}
+                  endDate={experience.endDate}
+                  location={experience.location}
+                  technologies={experience.technologies}
+                  description={experience.description}
+                  responsibilities={experience.responsibilities}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </section>
