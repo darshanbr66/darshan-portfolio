@@ -1,5 +1,8 @@
 import ContactMessage from "../models/ContactMessage.js";
-import { sendContactNotification } from "../services/email.service.js";
+import {
+  sendContactNotification,
+  sendContactConfirmation,
+} from "../services/email.service.js";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -66,7 +69,12 @@ export async function createContactMessage(req, res) {
       message: trimmedMessage,
     });
 
-    // Send email notification
+    /*
+     * First send the notification to the portfolio owner.
+     *
+     * The visitor confirmation email will only be sent
+     * if this notification succeeds.
+     */
     try {
       await sendContactNotification({
         name: contactMessage.name,
@@ -75,8 +83,39 @@ export async function createContactMessage(req, res) {
       });
     } catch (emailError) {
       console.error(
-        "Contact message saved, but email notification failed:",
+        "Contact message saved, but owner notification failed:",
         emailError,
+      );
+
+      return res.status(500).json({
+        success: false,
+        message:
+          "Your message was saved, but we could not complete the notification process. Please try again.",
+      });
+    }
+
+    /*
+     * Owner notification succeeded.
+     *
+     * Now send the confirmation email to the visitor.
+     */
+    try {
+      await sendContactConfirmation({
+        name: contactMessage.name,
+        email: contactMessage.email,
+        message: contactMessage.message,
+      });
+    } catch (confirmationError) {
+      /*
+       * The owner's notification was already successful,
+       * so we don't fail the entire request.
+       *
+       * The message is safely stored and you have already
+       * received the notification.
+       */
+      console.error(
+        "Owner notification sent, but visitor confirmation failed:",
+        confirmationError,
       );
     }
 
