@@ -1,18 +1,12 @@
 import api from "../../services/api";
 
-export async function getProfile() {
-  const response = await api.get("/profile");
-
-  return response.data.data;
-}
-
 export async function getAdminProfile() {
   const response = await api.get("/profile/admin");
 
-  return response.data.data;
+  return response.data;
 }
 
-export async function updateProfile(profileData) {
+export async function updateAdminProfile(profileData) {
   const response = await api.put(
     "/profile/admin",
     profileData,
