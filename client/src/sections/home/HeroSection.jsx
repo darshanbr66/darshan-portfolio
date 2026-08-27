@@ -208,6 +208,25 @@ function HeroSection() {
                       {link.label}
                     </a>
                   ))}
+
+                  <a
+                    href="/resume.pdf"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="
+                      border-b
+                      border-transparent
+                      pb-1
+                      text-sm
+                      font-medium
+                      text-[var(--color-ink-muted)]
+                      transition-colors
+                      hover:border-[var(--color-ink)]
+                      hover:text-[var(--color-ink)]
+                    "
+                  >
+                    Resume ↗
+                  </a>
               </div>
             </div>
 

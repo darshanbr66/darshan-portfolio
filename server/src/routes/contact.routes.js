@@ -1,6 +1,12 @@
 import express from "express";
 import rateLimit from "express-rate-limit";
-import { createContactMessage } from "../controllers/contact.controller.js";
+import {
+  createContactMessage,
+  getContactMessages,
+  deleteContactMessage,
+  updateContactMessageStatus,
+} from "../controllers/contact.controller.js";
+import { requireAdminAuth } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
@@ -15,6 +21,18 @@ const contactLimiter = rateLimit({
   },
 });
 
+// Public
 router.post("/", contactLimiter, createContactMessage);
+
+// Admin
+router.get("/admin/all", requireAdminAuth, getContactMessages);
+
+router.patch(
+  "/admin/:id/status",
+  requireAdminAuth,
+  updateContactMessageStatus,
+);
+
+router.delete("/admin/:id", requireAdminAuth, deleteContactMessage);
 
 export default router;

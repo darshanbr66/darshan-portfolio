@@ -26,3 +26,58 @@ export async function getProfile(req, res) {
     });
   }
 }
+
+export async function getProfileAdmin(req, res) {
+  try {
+    const profile = await Profile.findOne();
+
+    if (!profile) {
+      return res.status(404).json({
+        success: false,
+        message: "Profile not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: profile,
+    });
+  } catch (error) {
+    console.error("Failed to fetch profile for admin:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch profile",
+    });
+  }
+}
+
+export async function updateProfile(req, res) {
+  try {
+    const profile = await Profile.findOne();
+
+    if (!profile) {
+      return res.status(404).json({
+        success: false,
+        message: "Profile not found",
+      });
+    }
+
+    Object.assign(profile, req.body);
+
+    await profile.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated successfully.",
+      data: profile,
+    });
+  } catch (error) {
+    console.error("Failed to update profile:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update profile",
+    });
+  }
+}

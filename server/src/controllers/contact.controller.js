@@ -135,3 +135,97 @@ export async function createContactMessage(req, res) {
     });
   }
 }
+
+export async function getContactMessages(req, res) {
+  try {
+    const messages = await ContactMessage.find().sort({
+      createdAt: -1,
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: messages,
+    });
+  } catch (error) {
+    console.error("Failed to fetch contact messages:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch contact messages",
+    });
+  }
+}
+
+export async function deleteContactMessage(req, res) {
+  try {
+    const message = await ContactMessage.findByIdAndDelete(
+      req.params.id,
+    );
+
+    if (!message) {
+      return res.status(404).json({
+        success: false,
+        message: "Contact message not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Contact message deleted successfully.",
+    });
+  } catch (error) {
+    console.error("Failed to delete contact message:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete contact message",
+    });
+  }
+}
+
+export async function updateContactMessageStatus(req, res) {
+  try {
+    const { status } = req.body;
+
+    const allowedStatuses = ["new", "read", "replied"];
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid contact message status.",
+      });
+    }
+
+    const contactMessage = await ContactMessage.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
+
+    if (!contactMessage) {
+      return res.status(404).json({
+        success: false,
+        message: "Contact message not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Contact message status updated successfully.",
+      data: contactMessage,
+    });
+  } catch (error) {
+    console.error(
+      "Failed to update contact message status:",
+      error,
+    );
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update contact message status",
+    });
+  }
+}
