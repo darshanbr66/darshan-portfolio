@@ -22,6 +22,7 @@ import AdminExperiencePage from "../pages/admin/AdminExperiencePage";
 import AdminProjectsPage from "../pages/admin/AdminProjectsPage";
 import AdminMessagesPage from "../pages/admin/AdminMessagesPage";
 import AdminFilesPage from "../pages/admin/AdminFilesPage";
+import AdminContentPage from "../pages/admin/AdminContentPage";
 
 function AppRouter() {
   return (
@@ -57,6 +58,11 @@ function AppRouter() {
             <Route
               path="/admin/profile"
               element={<AdminProfilePage />}
+            />
+
+            <Route
+              path="/admin/content"
+              element={<AdminContentPage />}
             />
 
             <Route

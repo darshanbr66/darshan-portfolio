@@ -8,6 +8,7 @@ import contactRoutes from "./routes/contact.routes.js";
 import profileRoutes from "./routes/profile.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
+import contentRoutes from "./routes/content.routes.js";
 
 
 const app = express();
@@ -37,5 +38,6 @@ app.use("/api/v1/contact", contactRoutes);
 app.use("/api/v1/profile", profileRoutes);
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/uploads", uploadRoutes);
+app.use("/api/v1/content", contentRoutes);
 
 export default app;

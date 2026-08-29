@@ -22,11 +22,11 @@ const navigation = [
     path: "/admin/profile",
     icon: UserRound,
   },
-  // {
-  //   label: "Content",
-  //   path: "/admin/content",
-  //   icon: FileText,
-  // },
+  {
+    label: "Content",
+    path: "/admin/content",
+    icon: FileText,
+  },
   {
     label: "Skills",
     path: "/admin/skills",
