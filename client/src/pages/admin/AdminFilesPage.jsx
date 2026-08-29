@@ -4,12 +4,16 @@ import {
   File,
   ExternalLink,
   Trash2,
+  Check,
+  FileText,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 import { useAdminFiles } from "../../features/files/hook/useAdminFiles";
 import {
   uploadFile,
+  setResume,
   deleteFile,
   getFileUrl,
 } from "../../features/files/files.admin.service";
@@ -26,24 +30,28 @@ function AdminFilesPage() {
   } = useAdminFiles();
 
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadError, setUploadError] = useState("");
+  const [settingResumeId, setSettingResumeId] = useState(null);
+  const [deletingFileId, setDeletingFileId] = useState(null);
 
   async function handleFileChange(event) {
     const file = event.target.files?.[0];
 
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     try {
       setIsUploading(true);
-      setUploadError("");
 
       await uploadFile(file);
 
       await queryClient.invalidateQueries({
         queryKey: ["admin", "files"],
       });
+
+      toast.success("File uploaded successfully.");
     } catch (error) {
-      setUploadError(
+      toast.error(
         error.response?.data?.message ||
           "Unable to upload file.",
       );
@@ -53,24 +61,61 @@ function AdminFilesPage() {
     }
   }
 
+  async function handleSetResume(file) {
+    try {
+      setSettingResumeId(String(file.id));
+
+      await setResume(file.id);
+
+      await queryClient.invalidateQueries({
+        queryKey: ["admin", "files"],
+      });
+
+      toast.success("Resume updated successfully.");
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          "Unable to set resume.",
+      );
+    } finally {
+      setSettingResumeId(null);
+    }
+  }
+
   async function handleDelete(file) {
+    if (file.isResume) {
+      toast.error(
+        "The active resume cannot be deleted. Set another resume first.",
+      );
+
+      return;
+    }
+
     const confirmed = window.confirm(
       `Delete "${file.filename}"? This cannot be undone.`,
     );
 
-    if (!confirmed) return;
+    if (!confirmed) {
+      return;
+    }
 
     try {
+      setDeletingFileId(String(file.id));
+
       await deleteFile(file.id);
 
       await queryClient.invalidateQueries({
         queryKey: ["admin", "files"],
       });
+
+      toast.success("File deleted successfully.");
     } catch (error) {
-      window.alert(
+      toast.error(
         error.response?.data?.message ||
           "Unable to delete file.",
       );
+    } finally {
+      setDeletingFileId(null);
     }
   }
 
@@ -79,9 +124,11 @@ function AdminFilesPage() {
       <div>
         <PageHeading />
 
-        <p className="mt-6 text-sm text-[var(--color-ink-muted)]">
-          Loading files...
-        </p>
+        <div className="mt-8 space-y-4">
+          {[1, 2, 3].map((item) => (
+            <FileSkeleton key={item} />
+          ))}
+        </div>
       </div>
     );
   }
@@ -91,7 +138,7 @@ function AdminFilesPage() {
       <div>
         <PageHeading />
 
-        <div className="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mt-8 rounded-2xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700">
           {error?.response?.data?.message ||
             "Unable to load files."}
         </div>
@@ -100,8 +147,8 @@ function AdminFilesPage() {
   }
 
   return (
-    <div>
-      <div className="mb-10 flex items-start justify-between gap-6">
+    <div className="pb-10">
+      <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
         <PageHeading />
 
         <button
@@ -112,6 +159,7 @@ function AdminFilesPage() {
             inline-flex
             shrink-0
             items-center
+            justify-center
             gap-2
             rounded-xl
             bg-[var(--color-ink)]
@@ -139,12 +187,6 @@ function AdminFilesPage() {
         />
       </div>
 
-      {uploadError && (
-        <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {uploadError}
-        </div>
-      )}
-
       {files.length === 0 ? (
         <div className="rounded-2xl border border-[var(--color-border)] p-8">
           <div className="flex items-center gap-3">
@@ -160,90 +202,163 @@ function AdminFilesPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {files.map((file) => (
-            <div
-              key={String(file.id)}
-              className="
-                rounded-2xl
-                border
-                border-[var(--color-border)]
-                p-5
-                sm:p-6
-              "
-            >
-              <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex min-w-0 items-center gap-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--color-surface-soft)]">
-                    <File
-                      size={18}
-                      className="text-[var(--color-ink-muted)]"
-                    />
+          {files.map((file) => {
+            const fileId = String(file.id);
+            const isPdf =
+              file.contentType === "application/pdf";
+
+            const isSettingResume =
+              settingResumeId === fileId;
+
+            const isDeleting =
+              deletingFileId === fileId;
+
+            return (
+              <div
+                key={fileId}
+                className="
+                  rounded-2xl
+                  border
+                  border-[var(--color-border)]
+                  p-5
+                  transition
+                  sm:p-6
+                "
+              >
+                <div className="flex flex-col gap-5">
+                  <div className="flex min-w-0 items-start gap-4">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--color-surface-soft)]">
+                      {isPdf ? (
+                        <FileText
+                          size={19}
+                          className="text-[var(--color-ink-muted)]"
+                        />
+                      ) : (
+                        <File
+                          size={19}
+                          className="text-[var(--color-ink-muted)]"
+                        />
+                      )}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="break-all text-sm font-semibold text-[var(--color-ink)]">
+                          {file.filename}
+                        </p>
+
+                        {file.isResume && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-ink)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white">
+                            <Check size={11} />
+                            Active Resume
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="mt-1 text-xs text-[var(--color-ink-muted)]">
+                        {file.contentType} ·{" "}
+                        {formatFileSize(file.size)}
+                      </p>
+
+                      <p className="mt-1 text-xs text-[var(--color-ink-muted)]">
+                        {formatDate(file.uploadDate)}
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-[var(--color-ink)]">
-                      {file.filename}
-                    </p>
+                  <div className="flex flex-wrap items-center gap-2 border-t border-[var(--color-border)] pt-4">
+                    {isPdf && !file.isResume && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleSetResume(file)
+                        }
+                        disabled={
+                          isSettingResume ||
+                          Boolean(settingResumeId)
+                        }
+                        className="
+                          inline-flex
+                          items-center
+                          gap-2
+                          rounded-lg
+                          bg-[var(--color-ink)]
+                          px-3
+                          py-2
+                          text-sm
+                          font-medium
+                          text-white
+                          transition
+                          hover:bg-[var(--color-accent)]
+                          disabled:cursor-not-allowed
+                          disabled:opacity-50
+                        "
+                      >
+                        <Check size={15} />
 
-                    <p className="mt-1 text-xs text-[var(--color-ink-muted)]">
-                      {file.contentType} · {formatFileSize(file.size)}
-                    </p>
+                        {isSettingResume
+                          ? "Setting..."
+                          : "Set as Resume"}
+                      </button>
+                    )}
 
-                    <p className="mt-1 text-xs text-[var(--color-ink-muted)]">
-                      {formatDate(file.uploadDate)}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex shrink-0 items-center gap-2">
-                  <a
-                    href={getFileUrl(file.id)}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="
-                      inline-flex
-                      items-center
-                      gap-2
-                      rounded-lg
-                      border
-                      border-[var(--color-border-strong)]
-                      px-3
-                      py-2
-                      text-sm
-                      font-medium
-                      text-[var(--color-ink)]
-                      transition
-                      hover:bg-[var(--color-surface-soft)]
-                    "
-                  >
-                    <ExternalLink size={15} />
-                    <span className="hidden sm:inline">
+                    <a
+                      href={getFileUrl(file.id)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="
+                        inline-flex
+                        items-center
+                        gap-2
+                        rounded-lg
+                        border
+                        border-[var(--color-border-strong)]
+                        px-3
+                        py-2
+                        text-sm
+                        font-medium
+                        text-[var(--color-ink)]
+                        transition
+                        hover:bg-[var(--color-surface-soft)]
+                      "
+                    >
+                      <ExternalLink size={15} />
                       Open
-                    </span>
-                  </a>
+                    </a>
 
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(file)}
-                    className="
-                      inline-flex
-                      items-center
-                      justify-center
-                      rounded-lg
-                      px-3
-                      py-2
-                      text-red-600
-                      transition
-                      hover:bg-red-50
-                    "
-                    aria-label={`Delete ${file.filename}`}
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                    {!file.isResume && (
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(file)}
+                        disabled={isDeleting}
+                        className="
+                          inline-flex
+                          items-center
+                          gap-2
+                          rounded-lg
+                          px-3
+                          py-2
+                          text-sm
+                          font-medium
+                          text-red-600
+                          transition
+                          hover:bg-red-50
+                          disabled:cursor-not-allowed
+                          disabled:opacity-50
+                        "
+                      >
+                        <Trash2 size={15} />
+
+                        {isDeleting
+                          ? "Deleting..."
+                          : "Delete"}
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
@@ -262,25 +377,51 @@ function PageHeading() {
       </h1>
 
       <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-ink-muted)]">
-        Upload and manage files stored with your portfolio.
+        Upload files and manage the document used as your
+        public resume.
       </p>
     </div>
   );
 }
 
+function FileSkeleton() {
+  return (
+    <div className="animate-pulse rounded-2xl border border-[var(--color-border)] p-6">
+      <div className="flex items-start gap-4">
+        <div className="h-11 w-11 shrink-0 rounded-xl bg-[var(--color-surface-soft)]" />
+
+        <div className="flex-1 space-y-3">
+          <div className="h-4 w-56 rounded bg-[var(--color-surface-soft)]" />
+          <div className="h-3 w-40 rounded bg-[var(--color-surface-soft)]" />
+          <div className="h-3 w-28 rounded bg-[var(--color-surface-soft)]" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function formatFileSize(bytes) {
-  if (!bytes) return "0 Bytes";
+  if (!bytes) {
+    return "0 Bytes";
+  }
 
   const units = ["Bytes", "KB", "MB", "GB"];
-  const index = Math.floor(
-    Math.log(bytes) / Math.log(1024),
+
+  const index = Math.min(
+    Math.floor(Math.log(bytes) / Math.log(1024)),
+    units.length - 1,
   );
 
-  return `${(bytes / 1024 ** index).toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
+  return `${(
+    bytes /
+    1024 ** index
+  ).toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
 }
 
 function formatDate(value) {
-  if (!value) return "";
+  if (!value) {
+    return "";
+  }
 
   return new Date(value).toLocaleString();
 }

@@ -24,6 +24,17 @@ export async function uploadFile(file) {
   return response.data;
 }
 
+export async function setResume(fileId) {
+  const response = await api.put(
+    "/resume/admin",
+    {
+      fileId,
+    },
+  );
+
+  return response.data;
+}
+
 export async function deleteFile(id) {
   const response = await api.delete(
     `/uploads/${id}`,
@@ -34,4 +45,8 @@ export async function deleteFile(id) {
 
 export function getFileUrl(id) {
   return `${api.defaults.baseURL}/uploads/${id}`;
+}
+
+export function getResumeUrl() {
+  return `${api.defaults.baseURL}/resume`;
 }

@@ -3,6 +3,8 @@ import multer from "multer";
 import {
   uploadFile,
   getAllFiles,
+  getResume,
+  setResume,
   getFile,
   deleteFile,
 } from "../controllers/upload.controller.js";
@@ -27,7 +29,25 @@ router.get(
   getAllFiles,
 );
 
-router.get("/:id", getFile);
+/*
+ * Public resume.
+ * This must come before /:id.
+ */
+router.get(
+  "/resume",
+  getResume,
+);
+
+router.put(
+  "/:id/resume",
+  requireAdminAuth,
+  setResume,
+);
+
+router.get(
+  "/:id",
+  getFile,
+);
 
 router.delete(
   "/:id",

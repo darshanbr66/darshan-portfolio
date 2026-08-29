@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { Readable } from "node:stream";
 import { getGridFSBucket } from "../config/gridfs.js";
 import path from "node:path";
+import Resume from "../models/Resume.js";
 
 function getContentType(filename, mimetype) {
   const extension = path
@@ -127,16 +128,27 @@ export async function getAllFiles(req, res) {
       .sort({ uploadDate: -1 })
       .toArray();
 
+    const activeResume = await Resume.findOne({
+      status: "active",
+    });
+
+    const activeResumeId = activeResume?.fileId
+      ? String(activeResume.fileId)
+      : null;
+
     return res.status(200).json({
       success: true,
       data: files.map((file) => ({
         id: file._id,
         filename: file.filename,
-        contentType:
-          file.contentType ||
-          "application/octet-stream",
+        contentType: getContentType(
+          file.filename,
+          file.contentType,
+        ),
         size: file.length || 0,
         uploadDate: file.uploadDate,
+        isResume:
+          activeResumeId === String(file._id),
       })),
     });
   } catch (error) {
@@ -146,6 +158,157 @@ export async function getAllFiles(req, res) {
       success: false,
       message: "Failed to fetch files.",
     });
+  }
+}
+
+export async function setResume(req, res) {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid file ID.",
+      });
+    }
+
+    const bucket = getGridFSBucket();
+
+    const fileId = new mongoose.Types.ObjectId(id);
+
+    const files = await bucket
+      .find({
+        _id: fileId,
+      })
+      .toArray();
+
+    if (!files.length) {
+      return res.status(404).json({
+        success: false,
+        message: "File not found.",
+      });
+    }
+
+    const file = files[0];
+
+    const contentType = getContentType(
+      file.filename,
+      file.contentType,
+    );
+
+    if (contentType !== "application/pdf") {
+      return res.status(400).json({
+        success: false,
+        message: "Only PDF files can be used as the resume.",
+      });
+    }
+
+    await Resume.deleteMany({});
+
+    const resume = await Resume.create({
+      fileId,
+      filename: file.filename,
+      status: "active",
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Resume updated successfully.",
+      data: resume,
+    });
+  } catch (error) {
+    console.error("Failed to set resume:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to set resume.",
+    });
+  }
+}
+
+export async function getResume(req, res) {
+  try {
+    const resume = await Resume.findOne({
+      status: "active",
+    });
+
+    if (!resume) {
+      return res.status(404).json({
+        success: false,
+        message: "Resume not found.",
+      });
+    }
+
+    const bucket = getGridFSBucket();
+
+    const files = await bucket
+      .find({
+        _id: resume.fileId,
+      })
+      .toArray();
+
+    if (!files.length) {
+      await Resume.deleteOne({
+        _id: resume._id,
+      });
+
+      return res.status(404).json({
+        success: false,
+        message: "Resume file not found.",
+      });
+    }
+
+    const file = files[0];
+
+    const contentType =
+      file.contentType || "application/pdf";
+
+    res.setHeader("Content-Type", contentType);
+
+    res.setHeader(
+      "Content-Disposition",
+      "inline",
+    );
+
+    if (file.length !== undefined) {
+      res.setHeader(
+        "Content-Length",
+        String(file.length),
+      );
+    }
+
+    const downloadStream =
+      bucket.openDownloadStream(file._id);
+
+    downloadStream.on("error", (error) => {
+      console.error(
+        "GridFS resume download failed:",
+        error,
+      );
+
+      if (!res.headersSent) {
+        return res.status(500).json({
+          success: false,
+          message: "Failed to retrieve resume.",
+        });
+      }
+
+      res.end();
+    });
+
+    downloadStream.pipe(res);
+  } catch (error) {
+    console.error(
+      "Failed to retrieve resume:",
+      error,
+    );
+
+    if (!res.headersSent) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to retrieve resume.",
+      });
+    }
   }
 }
 
@@ -277,14 +440,29 @@ export async function deleteFile(req, res) {
 
     const fileId = new mongoose.Types.ObjectId(id);
 
-    const files = await bucket.find({
-      _id: fileId,
-    }).toArray();
+    const files = await bucket
+      .find({
+        _id: fileId,
+      })
+      .toArray();
 
     if (!files.length) {
       return res.status(404).json({
         success: false,
         message: "File not found.",
+      });
+    }
+
+    const activeResume = await Resume.findOne({
+      fileId,
+      status: "active",
+    });
+
+    if (activeResume) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "The active resume cannot be deleted. Set another resume first.",
       });
     }
 

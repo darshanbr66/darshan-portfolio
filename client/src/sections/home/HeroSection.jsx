@@ -2,6 +2,7 @@ import { ArrowDown, ArrowUpRight } from "lucide-react";
 import { useProfile } from "../../features/profile/hooks/useProfile";
 import { useContent } from "../../features/content/hooks/useContent";
 import Skeleton from "../../components/ui/Skeleton";
+import { getResumeUrl } from "../../features/resume/resume.service";
 
 function HeroSection() {
   const {
@@ -222,7 +223,7 @@ function HeroSection() {
                   ))}
 
                 <a
-                  href="/resume.pdf"
+                  href={getResumeUrl()}
                   target="_blank"
                   rel="noreferrer"
                   className="
