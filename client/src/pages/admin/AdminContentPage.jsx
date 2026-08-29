@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ArrowUp,
   Save,
@@ -49,14 +49,60 @@ function AdminContentPage() {
     isError,
   } = useAdminContent();
 
-  const [form, setForm] = useState(null);
-  const [isSaving, setIsSaving] = useState(false);
+  if (isLoading) {
+    return <LoadingState />;
+  }
 
-  useEffect(() => {
-    if (content) {
-      setForm(content);
-    }
-  }, [content]);
+  if (isError || !content) {
+    return <ErrorState />;
+  }
+
+  return <ContentEditor initialContent={content} />;
+}
+
+function LoadingState() {
+  return (
+    <div>
+      <div className="mb-10">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)]">
+          Content
+        </p>
+
+        <h1 className="mt-3 text-4xl font-semibold tracking-[-0.04em] text-[var(--color-ink)]">
+          Portfolio content
+        </h1>
+
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-ink-muted)]">
+          Loading editable portfolio content...
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function ErrorState() {
+  return (
+    <div>
+      <div className="mb-10">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)]">
+          Content
+        </p>
+
+        <h1 className="mt-3 text-4xl font-semibold tracking-[-0.04em] text-[var(--color-ink)]">
+          Portfolio content
+        </h1>
+      </div>
+
+      <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        Unable to load portfolio content.
+      </div>
+    </div>
+  );
+}
+
+function ContentEditor({ initialContent }) {
+  const [form, setForm] = useState(initialContent);
+  const [isSaving, setIsSaving] = useState(false);
 
   function handleChange(section, field, value) {
     setForm((current) => ({
@@ -113,46 +159,6 @@ function AdminContentPage() {
     });
   }
 
-  if (isLoading || !form) {
-    return (
-      <div>
-        <div className="mb-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)]">
-            Content
-          </p>
-
-          <h1 className="mt-3 text-4xl font-semibold tracking-[-0.04em] text-[var(--color-ink)]">
-            Portfolio content
-          </h1>
-
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-ink-muted)]">
-            Loading editable portfolio content...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  if (isError) {
-    return (
-      <div>
-        <div className="mb-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)]">
-            Content
-          </p>
-
-          <h1 className="mt-3 text-4xl font-semibold tracking-[-0.04em] text-[var(--color-ink)]">
-            Portfolio content
-          </h1>
-        </div>
-
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          Unable to load portfolio content.
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="pb-24">
       {/* Header */}
@@ -206,6 +212,7 @@ function AdminContentPage() {
       </div>
 
       <form
+        id="content-edit-form"
         onSubmit={handleSubmit}
         className="space-y-8"
       >
@@ -608,6 +615,7 @@ function AdminContentPage() {
             "
           >
             <ArrowUp size={16} />
+
             <span className="hidden sm:inline">
               Back to top
             </span>
@@ -615,13 +623,8 @@ function AdminContentPage() {
 
           <button
             type="submit"
-            form=""
+            form="content-edit-form"
             disabled={isSaving}
-            onClick={() => {
-              document
-                .querySelector("form")
-                ?.requestSubmit();
-            }}
             className="
               inline-flex
               items-center
@@ -640,6 +643,7 @@ function AdminContentPage() {
             "
           >
             <Save size={16} />
+
             {isSaving ? "Saving..." : "Save changes"}
           </button>
         </div>

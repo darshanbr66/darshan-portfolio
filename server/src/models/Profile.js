@@ -72,6 +72,11 @@ const profileSchema = new mongoose.Schema(
       default: [],
     },
 
+    resumeFileId: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null,
+    },
+
     status: {
       type: String,
       enum: ["published", "draft"],

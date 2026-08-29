@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Plus,
   Pencil,
@@ -7,7 +7,6 @@ import {
   Save,
 } from "lucide-react";
 import {
-  getAllExperiences,
   createExperience,
   updateExperience,
   deleteExperience,
