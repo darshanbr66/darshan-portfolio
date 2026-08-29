@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { Save } from "lucide-react";
+import {
+  ArrowUp,
+  Save,
+} from "lucide-react";
+import toast from "react-hot-toast";
 
 import {
   updateContent,
@@ -7,13 +11,46 @@ import {
 
 import { useAdminContent } from "../../features/content/hooks/useAdminContent";
 
+const sectionNavigation = [
+  {
+    id: "content-hero",
+    label: "Hero",
+  },
+  {
+    id: "content-about",
+    label: "About",
+  },
+  {
+    id: "content-skills",
+    label: "Skills",
+  },
+  {
+    id: "content-experience",
+    label: "Experience",
+  },
+  {
+    id: "content-projects",
+    label: "Projects",
+  },
+  {
+    id: "content-contact",
+    label: "Contact",
+  },
+  {
+    id: "content-footer",
+    label: "Footer",
+  },
+];
+
 function AdminContentPage() {
-  const { data: content, isLoading, isError } = useAdminContent();
+  const {
+    data: content,
+    isLoading,
+    isError,
+  } = useAdminContent();
 
   const [form, setForm] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   useEffect(() => {
     if (content) {
@@ -34,23 +71,46 @@ function AdminContentPage() {
   async function handleSubmit(event) {
     event.preventDefault();
 
+    if (!form || isSaving) {
+      return;
+    }
+
     try {
       setIsSaving(true);
-      setError("");
-      setSuccess("");
 
       const result = await updateContent(form);
 
       setForm(result.data);
-      setSuccess("Content updated successfully.");
+
+      toast.success("Content updated successfully.");
     } catch (error) {
-      setError(
+      toast.error(
         error.response?.data?.message ||
           "Unable to update content.",
       );
     } finally {
       setIsSaving(false);
     }
+  }
+
+  function scrollToSection(sectionId) {
+    const element = document.getElementById(sectionId);
+
+    if (!element) {
+      return;
+    }
+
+    element.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }
+
+  function scrollToTop() {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   }
 
   if (isLoading || !form) {
@@ -94,8 +154,10 @@ function AdminContentPage() {
   }
 
   return (
-    <div>
-      <div className="mb-10">
+    <div className="pb-24">
+      {/* Header */}
+
+      <div className="mb-8">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)]">
           Content
         </p>
@@ -110,23 +172,47 @@ function AdminContentPage() {
         </p>
       </div>
 
-      {error && (
-        <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
-        </div>
-      )}
+      {/* Quick navigation */}
 
-      {success && (
-        <div className="mb-6 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-          {success}
+      <div className="sticky top-4 z-30 mb-8">
+        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-canvas)]/95 p-2 shadow-[0_4px_20px_rgba(17,17,17,0.05)] backdrop-blur-xl">
+          <div className="flex gap-1 overflow-x-auto">
+            {sectionNavigation.map((section) => (
+              <button
+                key={section.id}
+                type="button"
+                onClick={() =>
+                  scrollToSection(section.id)
+                }
+                className="
+                  shrink-0
+                  rounded-xl
+                  px-3
+                  py-2
+                  text-xs
+                  font-medium
+                  text-[var(--color-ink-muted)]
+                  transition-colors
+                  hover:bg-[var(--color-surface-soft)]
+                  hover:text-[var(--color-ink)]
+                  sm:px-4
+                "
+              >
+                {section.label}
+              </button>
+            ))}
+          </div>
         </div>
-      )}
+      </div>
 
       <form
         onSubmit={handleSubmit}
         className="space-y-8"
       >
+        {/* Hero */}
+
         <ContentSection
+          id="content-hero"
           title="Hero"
           description="Text displayed in the main introduction section."
         >
@@ -181,7 +267,10 @@ function AdminContentPage() {
           </div>
         </ContentSection>
 
+        {/* About */}
+
         <ContentSection
+          id="content-about"
           title="About"
           description="Text displayed in the About section."
         >
@@ -236,7 +325,10 @@ function AdminContentPage() {
           </div>
         </ContentSection>
 
+        {/* Skills */}
+
         <ContentSection
+          id="content-skills"
           title="Skills"
           description="Text displayed above the skills list."
         >
@@ -279,7 +371,10 @@ function AdminContentPage() {
           </div>
         </ContentSection>
 
+        {/* Experience */}
+
         <ContentSection
+          id="content-experience"
           title="Experience"
           description="Text displayed above the experience list."
         >
@@ -322,7 +417,10 @@ function AdminContentPage() {
           </div>
         </ContentSection>
 
+        {/* Projects */}
+
         <ContentSection
+          id="content-projects"
           title="Projects"
           description="Text displayed above the projects list."
         >
@@ -365,7 +463,10 @@ function AdminContentPage() {
           </div>
         </ContentSection>
 
+        {/* Contact */}
+
         <ContentSection
+          id="content-contact"
           title="Contact"
           description="Text displayed in the contact section."
         >
@@ -408,7 +509,10 @@ function AdminContentPage() {
           </div>
         </ContentSection>
 
+        {/* Footer */}
+
         <ContentSection
+          id="content-footer"
           title="Footer"
           description="Text displayed in the portfolio footer."
         >
@@ -451,6 +555,8 @@ function AdminContentPage() {
           </div>
         </ContentSection>
 
+        {/* Bottom save fallback */}
+
         <div className="flex justify-end border-t border-[var(--color-border)] pt-6">
           <button
             type="submit"
@@ -478,17 +584,81 @@ function AdminContentPage() {
           </button>
         </div>
       </form>
+
+      {/* Sticky save action */}
+
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[var(--color-border)] bg-[var(--color-canvas)]/95 px-4 py-3 shadow-[0_-4px_20px_rgba(17,17,17,0.05)] backdrop-blur-xl sm:px-6">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
+          <button
+            type="button"
+            onClick={scrollToTop}
+            className="
+              inline-flex
+              items-center
+              gap-2
+              rounded-xl
+              px-3
+              py-2.5
+              text-sm
+              font-medium
+              text-[var(--color-ink-muted)]
+              transition
+              hover:bg-[var(--color-surface-soft)]
+              hover:text-[var(--color-ink)]
+            "
+          >
+            <ArrowUp size={16} />
+            <span className="hidden sm:inline">
+              Back to top
+            </span>
+          </button>
+
+          <button
+            type="submit"
+            form=""
+            disabled={isSaving}
+            onClick={() => {
+              document
+                .querySelector("form")
+                ?.requestSubmit();
+            }}
+            className="
+              inline-flex
+              items-center
+              gap-2
+              rounded-xl
+              bg-[var(--color-ink)]
+              px-5
+              py-3
+              text-sm
+              font-semibold
+              text-white
+              transition
+              hover:bg-[var(--color-accent)]
+              disabled:cursor-not-allowed
+              disabled:opacity-60
+            "
+          >
+            <Save size={16} />
+            {isSaving ? "Saving..." : "Save changes"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
 
 function ContentSection({
+  id,
   title,
   description,
   children,
 }) {
   return (
-    <section className="rounded-2xl border border-[var(--color-border)] p-6 sm:p-8">
+    <section
+      id={id}
+      className="scroll-mt-28 rounded-2xl border border-[var(--color-border)] p-6 sm:p-8"
+    >
       <div className="mb-6">
         <h2 className="text-lg font-semibold text-[var(--color-ink)]">
           {title}
