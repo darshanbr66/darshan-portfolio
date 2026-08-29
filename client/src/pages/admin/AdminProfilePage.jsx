@@ -155,7 +155,7 @@ function AdminProfilePage() {
   }
 
   return (
-    <div className="max-w-4xl">
+    <div className="max-full">
       <div className="mb-10">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)]">
           Profile
