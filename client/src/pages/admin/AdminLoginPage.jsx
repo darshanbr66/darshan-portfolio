@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import useAuth from "../../features/auth/hooks/useAuth";
 
 function AdminLoginPage() {
@@ -33,6 +33,23 @@ function AdminLoginPage() {
   return (
     <main className="flex min-h-screen items-center justify-center px-6 py-12">
       <div className="w-full max-w-md">
+        <a
+          href="/"
+          className="
+            mb-8
+            inline-flex
+            items-center
+            gap-2
+            text-sm
+            font-medium
+            text-[var(--color-ink-muted)]
+            transition-colors
+            hover:text-[var(--color-ink)]
+          "
+        >
+          <ArrowLeft size={15} />
+          Back to portfolio
+        </a>        
         <div className="mb-10">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)]">
             Admin

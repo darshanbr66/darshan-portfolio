@@ -1,4 +1,4 @@
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Shield } from "lucide-react";
 import { useProfile } from "../../features/profile/hooks/useProfile";
 import Container from "./Container";
 
@@ -83,6 +83,14 @@ function Footer() {
                   Email
                 </a>
               )}
+
+              <a
+                href="/admin/login"
+                className="inline-flex items-center gap-1.5 text-sm text-white/35 transition-colors hover:text-white/70"
+              >
+                <Shield size={13} />
+                Admin
+              </a>
             </nav>
           </div>
         </div>

@@ -74,6 +74,12 @@ a {
   outline-offset: 4px;
 }
 
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+}
+
 /* --------------------------------------------------
    Scrollbar
 -------------------------------------------------- */
