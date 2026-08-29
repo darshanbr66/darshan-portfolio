@@ -16,6 +16,7 @@ import {
   setResume,
   deleteFile,
   getFileUrl,
+  getFileBlob,
 } from "../../features/files/files.admin.service";
 
 function AdminFilesPage() {
@@ -116,6 +117,43 @@ function AdminFilesPage() {
       );
     } finally {
       setDeletingFileId(null);
+    }
+  }
+
+  async function handleOpenFile(file) {
+    if (file.contentType !== "application/pdf") {
+      window.open(
+        getFileUrl(file.id),
+        "_blank",
+        "noopener,noreferrer",
+      );
+
+      return;
+    }
+
+    try {
+      const blob = await getFileBlob(file.id);
+
+      const blobUrl = URL.createObjectURL(
+        new Blob([blob], {
+          type: "application/pdf",
+        }),
+      );
+
+      window.open(
+        blobUrl,
+        "_blank",
+        "noopener,noreferrer",
+      );
+
+      setTimeout(() => {
+        URL.revokeObjectURL(blobUrl);
+      }, 60_000);
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          "Unable to preview file.",
+      );
     }
   }
 
@@ -302,10 +340,9 @@ function AdminFilesPage() {
                       </button>
                     )}
 
-                    <a
-                      href={getFileUrl(file.id)}
-                      target="_blank"
-                      rel="noreferrer"
+                    <button
+                      type="button"
+                      onClick={() => handleOpenFile(file)}
                       className="
                         inline-flex
                         items-center
@@ -324,7 +361,7 @@ function AdminFilesPage() {
                     >
                       <ExternalLink size={15} />
                       Open
-                    </a>
+                    </button>
 
                     {!file.isResume && (
                       <button

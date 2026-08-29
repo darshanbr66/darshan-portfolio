@@ -50,3 +50,14 @@ export function getFileUrl(id) {
 export function getResumeUrl() {
   return `${api.defaults.baseURL}/resume`;
 }
+
+export async function getFileBlob(id) {
+  const response = await api.get(
+    `/uploads/${id}`,
+    {
+      responseType: "blob",
+    },
+  );
+
+  return response.data;
+}
