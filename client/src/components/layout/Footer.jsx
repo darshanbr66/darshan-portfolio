@@ -1,9 +1,16 @@
 import { ArrowUpRight, Shield } from "lucide-react";
 import { useProfile } from "../../features/profile/hooks/useProfile";
+import { useContent } from "../../features/content/hooks/useContent";
 import Container from "./Container";
 
 function Footer() {
   const { data: profile } = useProfile();
+
+  const {
+    data: content,
+    isLoading: isContentLoading,
+    isError: isContentError,
+  } = useContent();
 
   const githubUrl = profile?.socialLinks?.find(
     (link) => link.id === "github",
@@ -17,28 +24,45 @@ function Footer() {
     (link) => link.id === "email",
   )?.url;
 
+  const footerContent = content?.footer;
+
   return (
     <footer className="bg-[var(--color-ink)] text-white">
       <Container>
         <div className="py-16 sm:py-20 lg:py-24">
           <div className="grid gap-12 lg:grid-cols-[1fr_auto] lg:items-end">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/45">
-                Let's build something
-              </p>
+              {isContentLoading ? (
+                <div className="space-y-5">
+                  <div className="h-3 w-40 animate-pulse rounded-full bg-white/10" />
 
-              <h2 className="mt-5 max-w-2xl text-4xl font-semibold tracking-[-0.05em] sm:text-5xl lg:text-6xl">
-                Have an idea?
-                <br />
-                Let's talk.
-              </h2>
+                  <div className="h-20 w-full max-w-2xl animate-pulse rounded-xl bg-white/10" />
+                </div>
+              ) : isContentError ? (
+                <p className="text-sm text-white/45">
+                  Unable to load footer content.
+                </p>
+              ) : (
+                <>
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/45">
+                    {footerContent?.eyebrow ||
+                      "Let's build something"}
+                  </p>
+
+                  <h2 className="mt-5 max-w-2xl whitespace-pre-line text-4xl font-semibold tracking-[-0.05em] sm:text-5xl lg:text-6xl">
+                    {footerContent?.heading ||
+                      "Have an idea?\nLet's talk."}
+                  </h2>
+                </>
+              )}
             </div>
 
             <a
               href="/#contact"
               className="inline-flex w-fit items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-[var(--color-ink)] transition-transform duration-200 hover:-translate-y-1"
             >
-              Start a conversation
+              {footerContent?.buttonLabel ||
+                "Start a conversation"}
               <ArrowUpRight size={16} />
             </a>
           </div>

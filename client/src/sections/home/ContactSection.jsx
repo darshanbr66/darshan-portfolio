@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Mail } from "lucide-react";
 import { sendContactMessage } from "../../features/contact/contact.service";
 import { useProfile } from "../../features/profile/hooks/useProfile";
+import { useContent } from "../../features/content/hooks/useContent";
 import Skeleton from "../../components/ui/Skeleton";
 
 function ContactSection() {
@@ -10,6 +11,12 @@ function ContactSection() {
     isLoading: isProfileLoading,
     isError: isProfileError,
   } = useProfile();
+
+  const {
+    data: content,
+    isLoading: isContentLoading,
+    isError: isContentError,
+  } = useContent();
 
   const [form, setForm] = useState({
     name: "",
@@ -70,6 +77,9 @@ function ContactSection() {
 
   const email = profile?.email;
 
+  const isHeaderLoading =
+    isContentLoading || isProfileLoading;
+
   return (
     <section
       id="contact"
@@ -77,19 +87,58 @@ function ContactSection() {
     >
       <div className="mx-auto grid max-w-6xl gap-16 px-6 py-24 sm:px-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-24 lg:px-12 lg:py-32">
         {/* Contact information */}
+
         <div>
-          <p className="text-sm font-medium uppercase tracking-[0.18em] text-[var(--color-accent)]">
-            Contact
-          </p>
+          {isContentLoading ? (
+            <div className="space-y-5">
+              <Skeleton
+                className="h-3 w-20 rounded-full"
+                variant="text"
+              />
 
-          <h2 className="mt-5 text-4xl font-semibold tracking-[-0.04em] text-[var(--color-text)] sm:text-5xl">
-            Get in touch
-          </h2>
+              <Skeleton
+                className="h-12 w-56 rounded-lg"
+                variant="heading"
+              />
 
-          <p className="mt-6 max-w-md text-base leading-7 text-[var(--color-muted)]">
-            For professional opportunities, project discussions, or other
-            enquiries.
-          </p>
+              <div className="space-y-3">
+                <Skeleton
+                  className="h-4 w-full max-w-md"
+                  variant="text"
+                />
+
+                <Skeleton
+                  className="h-4 w-11/12 max-w-md"
+                  variant="text"
+                />
+
+                <Skeleton
+                  className="h-4 w-8/12 max-w-md"
+                  variant="text"
+                />
+              </div>
+            </div>
+          ) : isContentError ? (
+            <p className="text-sm text-[var(--color-muted)]">
+              Unable to load section content right now.
+            </p>
+          ) : (
+            <>
+              <p className="text-sm font-medium uppercase tracking-[0.18em] text-[var(--color-accent)]">
+                {content?.contact?.sectionLabel || "Contact"}
+              </p>
+
+              <h2 className="mt-5 text-4xl font-semibold tracking-[-0.04em] text-[var(--color-text)] sm:text-5xl">
+                {content?.contact?.heading || "Get in touch"}
+              </h2>
+
+              {content?.contact?.description && (
+                <p className="mt-6 max-w-md text-base leading-7 text-[var(--color-muted)]">
+                  {content.contact.description}
+                </p>
+              )}
+            </>
+          )}
 
           {isProfileLoading && (
             <Skeleton
@@ -98,24 +147,28 @@ function ContactSection() {
             />
           )}
 
-          {!isProfileLoading && !isProfileError && email && (
-            <a
-              href={`mailto:${email}`}
-              className="mt-8 inline-flex min-h-11 items-center gap-3 text-sm font-medium text-[var(--color-text)] transition-opacity hover:opacity-60"
-            >
-              <Mail size={17} />
-              {email}
-            </a>
-          )}
+          {!isHeaderLoading &&
+            !isProfileError &&
+            email && (
+              <a
+                href={`mailto:${email}`}
+                className="mt-8 inline-flex min-h-11 items-center gap-3 text-sm font-medium text-[var(--color-text)] transition-opacity hover:opacity-60"
+              >
+                <Mail size={17} />
+                {email}
+              </a>
+            )}
         </div>
 
         {/* Contact form */}
+
         <form
           onSubmit={handleSubmit}
           className="border-t border-[var(--color-border)] pt-8"
         >
           <div className="grid gap-6">
             {/* Name */}
+
             <label className="grid gap-2">
               <span className="text-sm font-medium text-[var(--color-text)]">
                 Name
@@ -134,6 +187,7 @@ function ContactSection() {
             </label>
 
             {/* Email */}
+
             <label className="grid gap-2">
               <span className="text-sm font-medium text-[var(--color-text)]">
                 Email
@@ -152,6 +206,7 @@ function ContactSection() {
             </label>
 
             {/* Message */}
+
             <label className="grid gap-2">
               <span className="text-sm font-medium text-[var(--color-text)]">
                 Message
@@ -169,6 +224,7 @@ function ContactSection() {
             </label>
 
             {/* Submit */}
+
             <button
               type="submit"
               disabled={isSubmitting}
@@ -178,6 +234,7 @@ function ContactSection() {
             </button>
 
             {/* Status */}
+
             {status.message && (
               <p
                 className={`text-sm ${

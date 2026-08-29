@@ -1,15 +1,22 @@
 import { ArrowDown, ArrowUpRight } from "lucide-react";
 import { useProfile } from "../../features/profile/hooks/useProfile";
+import { useContent } from "../../features/content/hooks/useContent";
 import Skeleton from "../../components/ui/Skeleton";
 
 function HeroSection() {
   const {
     data: profile,
-    isLoading,
-    isError,
+    isLoading: isProfileLoading,
+    isError: isProfileError,
   } = useProfile();
 
-  if (isLoading) {
+  const {
+    data: content,
+    isLoading: isContentLoading,
+    isError: isContentError,
+  } = useContent();
+
+  if (isProfileLoading || isContentLoading) {
     return (
       <section className="flex min-h-[calc(100vh-72px)] items-center">
         <div className="mx-auto w-full max-w-[1440px] px-6 sm:px-8 lg:px-12">
@@ -23,12 +30,17 @@ function HeroSection() {
     );
   }
 
-  if (isError || !profile) {
+  if (
+    isProfileError ||
+    isContentError ||
+    !profile ||
+    !content
+  ) {
     return (
       <section className="flex min-h-[calc(100vh-72px)] items-center">
         <div className="mx-auto w-full max-w-[1440px] px-6 sm:px-8 lg:px-12">
           <p className="text-sm text-[var(--color-ink-muted)]">
-            Unable to load profile.
+            Unable to load portfolio content.
           </p>
         </div>
       </section>
@@ -209,24 +221,24 @@ function HeroSection() {
                     </a>
                   ))}
 
-                  <a
-                    href="/resume.pdf"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="
-                      border-b
-                      border-transparent
-                      pb-1
-                      text-sm
-                      font-medium
-                      text-[var(--color-ink-muted)]
-                      transition-colors
-                      hover:border-[var(--color-ink)]
-                      hover:text-[var(--color-ink)]
-                    "
-                  >
-                    Resume ↗
-                  </a>
+                <a
+                  href="/resume.pdf"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="
+                    border-b
+                    border-transparent
+                    pb-1
+                    text-sm
+                    font-medium
+                    text-[var(--color-ink-muted)]
+                    transition-colors
+                    hover:border-[var(--color-ink)]
+                    hover:text-[var(--color-ink)]
+                  "
+                >
+                  Resume ↗
+                </a>
               </div>
             </div>
 
@@ -235,15 +247,11 @@ function HeroSection() {
             <div className="hidden lg:block">
               <div className="border-l border-[var(--color-border)] pl-8">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-ink-muted)]">
-                  Available for
+                  {content.hero.availableForLabel}
                 </p>
 
                 <p className="mt-4 text-sm leading-6 text-[var(--color-ink-soft)]">
-                  Full-stack development
-                  <br />
-                  Web applications
-                  <br />
-                  Product-focused engineering
+                  {content.hero.availableForText}
                 </p>
 
                 <a
@@ -262,7 +270,7 @@ function HeroSection() {
                     hover:text-[var(--color-accent)]
                   "
                 >
-                  Explore work
+                  {content.hero.exploreWorkLabel}
                   <ArrowDown size={14} />
                 </a>
               </div>
@@ -278,7 +286,7 @@ function HeroSection() {
               </span>
 
               <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-muted)]">
-                Scroll to explore
+                {content.hero.scrollLabel}
               </span>
             </div>
           </div>
