@@ -1,6 +1,59 @@
 import mongoose from "mongoose";
 import { Readable } from "node:stream";
 import { getGridFSBucket } from "../config/gridfs.js";
+import path from "node:path";
+
+function getContentType(filename, mimetype) {
+  const extension = path
+    .extname(filename)
+    .toLowerCase();
+
+  const contentTypes = {
+    ".pdf": "application/pdf",
+
+    ".txt": "text/plain",
+    ".html": "text/html",
+    ".htm": "text/html",
+    ".css": "text/css",
+    ".js": "text/javascript",
+    ".json": "application/json",
+
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".png": "image/png",
+    ".gif": "image/gif",
+    ".webp": "image/webp",
+    ".svg": "image/svg+xml",
+    ".bmp": "image/bmp",
+    ".ico": "image/x-icon",
+
+    ".mp3": "audio/mpeg",
+    ".wav": "audio/wav",
+    ".ogg": "audio/ogg",
+
+    ".mp4": "video/mp4",
+    ".webm": "video/webm",
+    ".ogv": "video/ogg",
+
+    ".doc": "application/msword",
+    ".docx":
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+
+    ".xls": "application/vnd.ms-excel",
+    ".xlsx":
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+
+    ".ppt": "application/vnd.ms-powerpoint",
+    ".pptx":
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  };
+
+  return (
+    contentTypes[extension] ||
+    mimetype ||
+    "application/octet-stream"
+  );
+}
 
 export async function uploadFile(req, res) {
   try {
@@ -13,14 +66,22 @@ export async function uploadFile(req, res) {
 
     const bucket = getGridFSBucket();
 
-    const uploadStream = bucket.openUploadStream(req.file.originalname, {
-      contentType: req.file.mimetype,
-      metadata: {
-        originalName: req.file.originalname,
-        mimeType: req.file.mimetype,
-        size: req.file.size,
+    const contentType = getContentType(
+      req.file.originalname,
+      req.file.mimetype,
+    );
+
+    const uploadStream = bucket.openUploadStream(
+      req.file.originalname,
+      {
+        contentType,
+        metadata: {
+          originalName: req.file.originalname,
+          mimeType: contentType,
+          size: req.file.size,
+        },
       },
-    });
+    );
 
     Readable.from(req.file.buffer).pipe(uploadStream);
 
@@ -31,7 +92,7 @@ export async function uploadFile(req, res) {
         data: {
           id: uploadStream.id,
           filename: req.file.originalname,
-          contentType: req.file.mimetype,
+          contentType,
           size: req.file.size,
         },
       });
@@ -57,6 +118,37 @@ export async function uploadFile(req, res) {
   }
 }
 
+export async function getAllFiles(req, res) {
+  try {
+    const bucket = getGridFSBucket();
+
+    const files = await bucket
+      .find({})
+      .sort({ uploadDate: -1 })
+      .toArray();
+
+    return res.status(200).json({
+      success: true,
+      data: files.map((file) => ({
+        id: file._id,
+        filename: file.filename,
+        contentType:
+          file.contentType ||
+          "application/octet-stream",
+        size: file.length || 0,
+        uploadDate: file.uploadDate,
+      })),
+    });
+  } catch (error) {
+    console.error("Failed to fetch files:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch files.",
+    });
+  }
+}
+
 export async function getFile(req, res) {
   try {
     const { id } = req.params;
@@ -70,9 +162,11 @@ export async function getFile(req, res) {
 
     const bucket = getGridFSBucket();
 
-    const files = await bucket.find({
-      _id: new mongoose.Types.ObjectId(id),
-    }).toArray();
+    const files = await bucket
+      .find({
+        _id: new mongoose.Types.ObjectId(id),
+      })
+      .toArray();
 
     if (!files.length) {
       return res.status(404).json({
@@ -83,16 +177,64 @@ export async function getFile(req, res) {
 
     const file = files[0];
 
-    res.set("Content-Type", file.contentType || "application/octet-stream");
+    const contentType =
+      file.contentType || "application/octet-stream";
 
-    if (file.length !== undefined) {
-      res.set("Content-Length", String(file.length));
+    res.setHeader("Content-Type", contentType);
+
+    /*
+     * Tell the browser to display browser-supported
+     * file types instead of downloading them.
+     */
+    const inlineTypes = [
+      "application/pdf",
+      "text/plain",
+      "text/html",
+      "application/json",
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+      "image/svg+xml",
+      "image/bmp",
+      "image/x-icon",
+      "audio/mpeg",
+      "audio/wav",
+      "audio/ogg",
+      "video/mp4",
+      "video/webm",
+      "video/ogg",
+    ];
+
+    if (inlineTypes.includes(contentType)) {
+      res.setHeader(
+        "Content-Disposition",
+        "inline",
+      );
+    } else {
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${encodeURIComponent(
+          file.filename,
+        )}"`,
+      );
     }
 
-    const downloadStream = bucket.openDownloadStream(file._id);
+    if (file.length !== undefined) {
+      res.setHeader(
+        "Content-Length",
+        String(file.length),
+      );
+    }
+
+    const downloadStream =
+      bucket.openDownloadStream(file._id);
 
     downloadStream.on("error", (error) => {
-      console.error("GridFS download failed:", error);
+      console.error(
+        "GridFS download failed:",
+        error,
+      );
 
       if (!res.headersSent) {
         return res.status(500).json({
@@ -106,7 +248,10 @@ export async function getFile(req, res) {
 
     downloadStream.pipe(res);
   } catch (error) {
-    console.error("Failed to retrieve file:", error);
+    console.error(
+      "Failed to retrieve file:",
+      error,
+    );
 
     if (!res.headersSent) {
       return res.status(500).json({

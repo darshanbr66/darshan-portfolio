@@ -22,11 +22,11 @@ const navigation = [
     path: "/admin/profile",
     icon: UserRound,
   },
-  {
-    label: "Content",
-    path: "/admin/content",
-    icon: FileText,
-  },
+  // {
+  //   label: "Content",
+  //   path: "/admin/content",
+  //   icon: FileText,
+  // },
   {
     label: "Skills",
     path: "/admin/skills",
@@ -54,7 +54,50 @@ const navigation = [
   },
 ];
 
-function AdminSidebar() {
+function AdminSidebar({
+  mobile = false,
+  onNavigate,
+}) {
+  if (mobile) {
+    return (
+      <nav className="space-y-1">
+        {navigation.map((item) => {
+          const Icon = item.icon;
+
+          return (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              end={item.end}
+              onClick={onNavigate}
+              className={({ isActive }) =>
+                `
+                  flex
+                  items-center
+                  gap-3
+                  rounded-xl
+                  px-3
+                  py-3
+                  text-sm
+                  font-medium
+                  transition-colors
+                  ${
+                    isActive
+                      ? "bg-[var(--color-surface-soft)] text-[var(--color-ink)]"
+                      : "text-[var(--color-ink-muted)] hover:bg-[var(--color-surface-soft)] hover:text-[var(--color-ink)]"
+                  }
+                `
+              }
+            >
+              <Icon size={18} />
+              {item.label}
+            </NavLink>
+          );
+        })}
+      </nav>
+    );
+  }
+
   return (
     <aside className="hidden w-64 shrink-0 border-r border-[var(--color-border)] lg:block">
       <div className="sticky top-0 flex h-screen flex-col">

@@ -2,6 +2,7 @@ import express from "express";
 import multer from "multer";
 import {
   uploadFile,
+  getAllFiles,
   getFile,
   deleteFile,
 } from "../controllers/upload.controller.js";
@@ -19,6 +20,13 @@ router.post(
   upload.single("file"),
   uploadFile,
 );
+
+router.get(
+  "/admin/all",
+  requireAdminAuth,
+  getAllFiles,
+);
+
 router.get("/:id", getFile);
 
 router.delete(
